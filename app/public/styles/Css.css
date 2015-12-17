@@ -11,6 +11,19 @@
   margin-left: 100px;
 
 }
+.xsltReceiver>.table>th{
+  position: absolute;
+}
+.xsltReceiver
+{
+  overflow: scroll;
+      position: absolute;
+    width: 100%;
+    margin: auto;
+    height: 75%;
+    bottom: 0px;
+    padding-left: 40px;
+}
 @keyframes grayscale
 {
   
