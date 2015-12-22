@@ -1,0 +1,11 @@
+<?xml version='1.0'?>
+
+<?xml-stylesheet type="text/xsl" href="msxmltest.xsl"?>
+<data>
+  <circle>
+    <radius>12</radius>
+  </circle>
+  <circle>
+    <radius>37.5</radius>
+  </circle>
+</data>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- <?xml-stylesheet type="text/xsl" href="/xslt/statTemplate2.xsl"?> -->
+<root>
+	<stat>
+		<type>camembert</type>
+		<nom>Pourcentage d'établissements privés / public</nom>
+		<total>3025</total>
+		<nombres>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Et.Privés">1000</nombre>
+			<nombre name="Et.Publics">1025</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">200</nombre>
+			<nombre name="Autres">200</nombre>
+		</nombres>
+	</stat>
+	<stat>
+		<type>camembert</type>
+		<nom>Pourcentage de personnes handicapées</nom>
+		<total>55</total>
+		<nombres>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Et.Privés">10</nombre>
+			<nombre name="Et.Privés">5</nombre>
+			<nombre name="Et.Publics">20</nombre>
+			<nombre name="Autres">10</nombre>
+		</nombres>
+	</stat>
+</root>

@@ -20,7 +20,7 @@ var httpServer = http.createServer(app);
 var httpsServer = https.createServer(credentials, app);
 
 
-session.execute('open etablissement_superieur');
+//session.execute('open etablissement_superieur');
 
 
 
@@ -70,7 +70,7 @@ var xQueries = {
 	,"UAI_NOM" : 'let $ms:=db:open("etablissement_superieur","etablissement_superieur.xml" )/ONISEP_ETABLISSEMENT return <etablissements> { for $m in $ms/etablissement return <etablissement> { $m/UAI,$m/nom } </etablissement> } </etablissements>'
 	,"CP": "/ONISEP_ETABLISSEMENT/etablissement/cp"
 ,"NOM_LAT_LON": 'let $ms:=db:open("etablissement_superieur","etablissement_superieur.xml" )/ONISEP_ETABLISSEMENT return <etablissements> { for $m in $ms/etablissement return <etablissement> { $m/nom,$m/latitude_Y,$m/longitude_X } </etablissement> } </etablissements>'
-
+,"STAT_NBET_ACAD":'let $ms:=db:open("etablissement_superieur","etablissement_superieur.xml")/ONISEP_ETABLISSEMENT/etablissement return<stat> <type>camembert</type> <nom>Nombre d&apos;établissement par académie</nom> <total>{count($ms)}</total> <nombres>{ for $etab in $ms let $acad := $etab/academie group by $acad order by $acad return <nombre name="{$acad}">{count($etab)}</nombre>} </nombres> </stat>'
 };
 
 
