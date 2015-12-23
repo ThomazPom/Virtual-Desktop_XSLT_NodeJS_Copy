@@ -16,7 +16,7 @@
 
 								<xsl:for-each select="./nombres/nombre">
 									<path fill="orange" stroke="#446688" stroke-width="0"  ><xsl:value-of select="."/></path>
-									<text x="408.3005093668" y="296.5435769061">Yo</text>
+									<!-- <text x="408.3005093668" y="296.5435769061">Yo</text> -->
 								</xsl:for-each>
 							</svg>
 							<br/>
