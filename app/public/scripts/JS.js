@@ -85,46 +85,56 @@ function initStatistic(divFrame)
 
 	getData("/xmlData","STAT_NBET_ACAD",xsltreceiver,function(xmlResponse,xsltreceiver)
 	{
-		getData("/xslt/statTemplate.xsl","",xsltreceiver,function(xslResponse,xsltreceiver){
+		getData("/xslt/statTemplate2.xsl","",xsltreceiver,function(xslResponse,xsltreceiver){
 			writeXML(xsltreceiver,xslResponse.responseXML,xmlResponse.responseXML)
-			drawCamemberts(xsltreceiver);
+			drawCamembertsXsL(xsltreceiver);
 		});
 	});
 
 
 }
+function drawCamembertsXsL(xsltreceiver)
+{
+	$(xsltreceiver).children("camembert").each(function(){
+		$(this).children("svg").children("circle").each(function(){
+			$(this).css("stroke",'#'+Math.random().toString(16).substr(2,6))
+		});
+	});
+}
 function drawCamemberts(xsltreceiver)
 {
 	var statistiques=xsltreceiver.getElementsByTagName("camembert");
-	for (var j = statistiques.length - 1; j >= 0; j--) {
-		
-		var cercle = statistiques[j].getElementsByTagName("circle")[0];
-		var total = parseFloat(cercle.firstChild.nodeValue);
-		var paths = statistiques[j].getElementsByTagName("path");
+	var stats = $(xsltreceiver).children("camembert");
+
+	stats.each(function(){
+		var svg = $(this).children("svg");
+		var cercle = svg.children("circle");
+		var total=parseFloat(cercle.html());
 		var decalage=0;
-		for (var i = paths.length - 1; i >= 0; i--) {
-			var path = paths[i];
-			portion = parseFloat(path.firstChild.nodeValue);
-			pourcentage = portion/total *360;
-			path.setAttribute("fill",'#'+Math.random().toString(16).substr(2,6));
-			console.log(decalage + " " +pourcentage) ;
-			path.setAttribute("d", describeArc(parseFloat(cercle.getAttribute("cx")), parseFloat(cercle.getAttribute("cy")), parseFloat(cercle.getAttribute("r")), decalage, decalage+pourcentage));
-			decalage=decalage+pourcentage;
-			$(path).mouseenter(function(){
-				oldcolor=$(this).attr("fill");
-				$(this).attr("fill","darkgray")
-				$(this).attr("stroke-width","5px")
+		svg.children("path").each(function()
+		{
+		var portion = parseFloat($(this).html());
+		var pourcentage = portion/total *360;
+		$(this).attr("fill",'#'+Math.random().toString(16).substr(2,6));
+		$(this).attr("d", describeArc(parseFloat(cercle.attr("cx")), parseFloat(cercle.attr("cy")), parseFloat(cercle.attr("r")), decalage, decalage+pourcentage));
+		decalage=decalage+pourcentage;
+		$(this).mouseenter(function(){
+			oldcolor=$(this).attr("fill");
+			$(this).attr("fill","darkgray")
+			$(this).attr("stroke-width","5px")
 
-			}).mouseleave(function(){
-				$(this).attr("fill",oldcolor)
-								$(this).attr("stroke-width","0px")
-			});
-		};
-	};
+		}).mouseleave(function(){
+			$(this).attr("fill",oldcolor)
+			$(this).attr("stroke-width","0px")
+		});
+	});
+
+	//	$(this).children("")
+});
 
 
 
-	
+
 }
 function placeAllPointsOn(data,map)
 {
