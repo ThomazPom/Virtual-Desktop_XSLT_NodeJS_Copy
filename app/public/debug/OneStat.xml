@@ -2,28 +2,58 @@
 <?xml-stylesheet type="text/xsl" href="/xslt/statTemplate2.xsl"?>
 <root>
 	<stat>
-		<type>camembert</type>
+		<type>histogramme</type>
 		<nom>Pourcentage d'établissements privés / public</nom>
 		<total>3025</total>
 		<nombres>
 			<nombre name="Autres">100</nombre>
 			<nombre name="Et.Privés">1000</nombre>
 			<nombre name="Et.Publics">1025</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">50</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">30</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">10</nombre>
+			<nombre name="Autres">200</nombre>
 			<nombre name="Autres">100</nombre>
-			<nombre name="Autres">200</nombre>
-			<nombre name="Autres">200</nombre>
 		</nombres>
 	</stat>
 	<stat>
-		<type>camembert</type>
+		<type>histogramme</type>
 		<nom>Pourcentage de personnes handicapées</nom>
 		<total>55</total>
 		<nombres>
+			<nombre name="Autres">55</nombre>
+			<nombre name="Et.Privés">10</nombre>
+			<nombre name="Et.Privés">5</nombre>
+			<nombre name="Et.Publics">20</nombre>
+			<nombre name="Autres">10</nombre>
 			<nombre name="Autres">10</nombre>
 			<nombre name="Et.Privés">10</nombre>
 			<nombre name="Et.Privés">5</nombre>
 			<nombre name="Et.Publics">20</nombre>
 			<nombre name="Autres">10</nombre>
+		</nombres>
+	</stat>
+	<stat>
+		<type>histogramme</type>
+		<nom>Statistiques de victoires chien vs poule</nom>
+		<total>133</total>
+		<nombres>
+			<nombre name="chien">129</nombre>
+			<nombre name="Poules">4</nombre>
 		</nombres>
 	</stat>
 </root>

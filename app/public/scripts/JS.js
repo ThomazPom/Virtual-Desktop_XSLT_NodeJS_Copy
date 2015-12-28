@@ -1,3 +1,14 @@
+var alertFallback = false;
+if (typeof console === "undefined" || typeof console.log === "undefined") {
+	console = {};
+	if (alertFallback) {
+		console.log = function(msg) {
+			alert(msg);
+		};
+	} else {
+		console.log = function() {};
+	}
+}
 
 // console.log("document.URL : "+document.URL);
 // console.log("document.location.href : "+document.location.href);
@@ -7,19 +18,42 @@
 // console.log("document.location.pathname : "+document.location.pathname);
 
 var idDivContent = 0;
+var topDivContent =null;
+var templateExplorer = null;
+var templateStat = null;
+var templateEtab = null;
 
+getData("/xslt/explorer.xsl",{},undefined,function(xslResponse){
+	templateExplorer=xslResponse.responseXML;
+	console.log("Template explo chargée");
+});
+getData("/xslt/statTemplate2.xsl",{},undefined,function(xslResponse){
+	templateStat=xslResponse.responseXML;
+	console.log("Template stat chargée");
+});
+
+getData("/xslt/etablissement.xsl",{},undefined,function(xslResponse){
+	templateEtab=xslResponse.responseXML;
+	console.log("Template etablissement chargée");
+});
 function divContentTopIndex(sender)
 {
+	topDivContent=sender;
 	$( ".divContent" ).css("z-index",500);
-	console.log(sender);
 	sender.parent().css("z-index",600);	
 }
 
+$(document).on('keyup',function(evt) {
+	if (evt.keyCode == 27) {
+		topDivContent.remove();
+	}
+});
 $(".divFrame").mousedown(divContentTopIndex);
 $(".appicon").click(function()
 {
+	var decalage = 60+(idDivContent*10)%100;
 	var divContent = $( "#divContent" ).clone().appendTo( "#content" ).attr("id","divContent" +idDivContent).css("display","block").css("position","absolute")
-	.css("top",100+(idDivContent*10)%100+"px").css("left",100+(idDivContent*10)%100+"px").draggable({
+	.css("top",decalage+"px").css("left",decalage+"px").draggable({
 		handle:".divFrame>nav"
 	}).resizable().click(function()
 	{
@@ -30,20 +64,21 @@ $(".appicon").click(function()
 
 
 	divContentTopIndex(divContent);
+
+	var tailleAdapter = idDivContent%10;
 	if ($(this).attr("id")=="linkMap") 
 	{
-
-		divContent.css("width","90vw").css("height","80vh");
+		divContent.css("width",90-tailleAdapter/2+"vw").css("height",80-tailleAdapter+"vh");
 		initMap(divContent.find(".divFrame"));
 	}
 	if ($(this).attr("id")=="linkExplorer") 
 	{
-		divContent.css("width","60vw").css("height","50vh");
+		divContent.css("width",90-tailleAdapter/2+"vw").css("height",80-tailleAdapter+"vh");
 		initDataExplorer(divContent.find(".divFrame"));
 	}
 	if ($(this).attr("id")=="linkStatistic") 
 	{
-		divContent.css("width","60vw").css("height","70vh");
+		divContent.css("width",90-tailleAdapter/2+"vw").css("height",80-tailleAdapter+"vh");
 		initStatistic(divContent.find(".divFrame"));
 	}
 	idDivContent++;
@@ -57,26 +92,80 @@ function initMap(divFrame) {
 		center: {lat: 48.8534100, lng: 2.3488000},
 		zoom: 6
 	});
-	getData("/xmlData","NOM_LAT_LON",map,placeAllPointsOn);
+	getData("/xmlData",{"queryName":"NOM_LAT_LON"},map,placeAllPointsOn);
 }
-var xsltreceiver ;
+
+var groupes = {
+	"type":"Type"
+	,"nom":"Nom"
+	,"sigle":"Sigle"
+	,"statut":"Statut"
+	,"tutelle":"Tutelle"
+	,"universite":"Université"
+	,"cp":"Code Postal"
+	,"commune":"Commune"
+	,"academie":"Académie"
+	,"region":"Région"
+}
+var ordres = {
+	"UAI":"UAI",
+	"type":"Type",
+	"nom":"Nom",
+	"sigle":"Sigle",
+	"statut":"Statut",
+	"tutelle":"Tutelle",
+	"universite":"Université",
+	"cp":"Code Postal",
+	"commune":"Commune",
+	"departement":"Département",
+	"academie":"Académie",
+	"region":"Région",
+	"longitude_X":"Longitude",
+	"latitude_Y":"Latittude"
+}
 function initDataExplorer(divFrame)
 {
-	divFrame.append("<div class='form-group'><label>Afficher les établissement par..</label>"+
-		"<select class='selectDataClassement form-control'></select></div>");
-	xsltreceiver= document.createElement("div");
-	xsltreceiver.className ="xsltReceiver";
-	xsltreceiver.id="xsltReceiver"+idDivContent
-	divFrame.append(xsltreceiver);
-	getData("/xmlData","UAI_NOM",xsltreceiver,function(xmlResponse,xsltreceiver)
-	{
-		getData("/xslt/UAI_NOM.xsl","",xsltreceiver,function(xslResponse,xsltreceiver){
-			writeXML(xsltreceiver,xslResponse.responseXML,xmlResponse.responseXML)
-		});
-	});
+	divFrame.append("<div class='form-group'><div class='container'><table><tr><td><label>Grouper les établissement par..</label><select class='selectDataClassement form-control'></select></td>"
+		+"<td><label>Ordonner les résultats par..</label><select class='selectDataOrder form-control'></select></td></tr></table></div></div>");
+
+	var selectDataClassement =  divFrame.find(".selectDataClassement");
+	var selectDataOrder =  divFrame.find(".selectDataOrder");
 
 	
+	for (var k in groupes){
+		selectDataClassement.append($('<option>', {
+			value: k,
+			text: groupes[k]
+		}));
+	}
 
+	for (var k in ordres){
+		selectDataOrder.append($('<option>', {
+			value: k,
+			text: ordres[k]
+		}));
+	}
+	xsltreceiver= document.createElement("div");
+	xsltreceiver.className ="xsltReceiver";
+	xsltreceiver.id="xsltReceiver"+idDivContent;
+	divFrame.append(xsltreceiver);
+
+	var changeEvent= function()
+	{
+		majDataExplorer(xsltreceiver,selectDataClassement.val(),selectDataOrder.val());
+	}
+	selectDataClassement.change(changeEvent);
+	selectDataOrder.change(changeEvent);
+	changeEvent();
+}
+
+function majDataExplorer(xsltreceiver,groupby,orderby)
+{
+
+	getData("/xmlData",{"queryName":"UAI_NOM_GROUP","groupeEtab":groupby,"ordreEtab":orderby},xsltreceiver,function(xmlResponse,xsltreceiver)
+	{
+		writeXML(xsltreceiver,templateExplorer,xmlResponse.responseXML,true)
+	});
 }
 function initStatistic(divFrame)
 {
@@ -85,17 +174,36 @@ function initStatistic(divFrame)
 	xsltreceiver.className ="xsltReceiver";
 	xsltreceiver.id="xsltReceiver"+idDivContent
 	divFrame.append(xsltreceiver);
-
-	getData("/xmlData","STAT_NBET_ACAD",xsltreceiver,function(xmlData,xsltreceiver)
+	
+	getData("/xmlData",{"queryName":"STAT_NBET_REGI","statType":"histogramme"},undefined,function(xmlData)
 	{
-		getData("/xslt/statTemplate2.xsl","",xsltreceiver,function(xslData,xsltreceiver){
-			writeXML(xsltreceiver,xslData.responseXML,xmlData.responseXML)
-			drawCamembertsXsL(xsltreceiver);
-		});
+		writeXML(xsltreceiver,templateStat,xmlData.responseXML);
 	});
+	getData("/xmlData",{"queryName":"STAT_NBET_REGI","statType":"camembert"},undefined,function(xmlData)
+	{
+		writeXML(xsltreceiver,templateStat,xmlData.responseXML);
+	});
+	getData("/xmlData",{"queryName":"STAT_NBET_ACAD","statType":"camembert"},undefined,function(xmlData)
+	{
+		writeXML(xsltreceiver,templateStat,xmlData.responseXML);
+	});
+
+	getData("/xmlData",{"queryName":"STAT_NBET_ACAD","statType":"histogramme"},undefined,function(xmlData)
+	{
+		writeXML(xsltreceiver,templateStat,xmlData.responseXML);
+	});
+
+		// getData("/debug/OneStat.xml",{},xsltreceiver,function(xmlData,xsltreceiver)
+		// {
+		// 	writeXML(xsltreceiver,xslData.responseXML,xmlData.responseXML);
+		// });
+
 
 
 }
+
+//////FONCTION DE COLORISATION DE CAMEMBERT[ABANDONNE CAUSE REPLACE FULL XSLT]
+/*
 function drawCamembertsXsL(xsltreceiver)
 {
 	$(xsltreceiver).find("camembert").each(function(){
@@ -103,16 +211,29 @@ function drawCamembertsXsL(xsltreceiver)
 			$(this).css("stroke",'#'+Math.random().toString(16).substr(2,6))
 		});
 	});
+}*/
+
+function viewEtab(sender)
+{
+	xsltreceiver=$(sender).children(".collapse").children(".panel-body")[0];
+	
+	if (/\S/.test(xsltreceiver.innerHTML)) {
+		return;
+	}
+	getData("/xmlData",{"queryName":"UN_ETABLISSEMENT","UAI":sender.id},undefined,function(xmlData)
+	{
+		console.log(xmlData);
+		writeXML(xsltreceiver,templateEtab,xmlData.responseXML);
+	});
 }
 
 
-var lololol = null;
 
 function formatDataIE(data){
 	if(data.responseXML.firstElmentChild==undefined);
 	{
 		console.log("Données converties pour ie");
-		return {'responseXML':$.parseXML(xhttp.responseText)};
+		return {'responseXML':$.parseXML(data.responseText)};
 	}
 	return data;
 }
@@ -136,67 +257,53 @@ function placeAllPointsOn(data,map)
 
 
 }
-function getInternetExplorerVersion()
-// Returns the version of Internet Explorer or a -1
-// (indicating the use of another browser).
-{
-  var rv = -1; // Return value assumes failure.
-  if (navigator.appName == 'Microsoft Internet Explorer')
-  {
-  	var ua = navigator.userAgent;
-  	var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-  	if (re.exec(ua) != null)
-  		rv = parseFloat( RegExp.$1 );
-  }
-  return rv;
-}
+
 ///////////////////////Get data utilisant JAVASCRIPT
 
-function getData(URL,qName,arg,callback)
+function getData(URL,args,callBackArg,callback)
 {
 	console.log("getData(qName,callback,arg)");
-	var ver = getInternetExplorerVersion();
-
-	if (ver > -1)
+	var req=null;
+	if ("ActiveXObject" in window)
 	{
-
-		console.log("IE");
-		xhttp = new ActiveXObject("Msxml2.XMLHTTP");
+		req = new ActiveXObject("Msxml2.XMLHTTP");
 	}
 	else 
 	{
-
-		console.log("OZER");
-		xhttp = new XMLHttpRequest();
+		req = new XMLHttpRequest();
 	}
-	xhttp.open("GET", URL+"?"+"queryName="+qName, true);
-try {xhttp.responseType = "msxml-document"} catch(err) {} // Helping IE11
-xhttp.send("");
 
-var interval = setInterval(function(){ 
-
-	if(xhttp.responseXML!=null)
-	{
-		clearInterval(interval);
-		console.log("getData(URL,qName,callback,arg)--->interval--->callback");
-		callback(xhttp,arg);
+	var argString="?";
+	for (var k in args){
+		argString+=k+"="+args[k]+"&";
 	}
-	else{
-		console.log("getData(URL,qName,callback,arg)--->interval--->else " + xhttp.statusText );
-	}
-},0);
 
+	req.open("GET", URL+argString, true);
+
+	req.send("");
+	var interval = setInterval(function(){ 
+		if(req.responseXML!=null)
+		{
+			clearInterval(interval);
+			console.log("getData(URL,qName,callback,arg)--->interval--->callback");
+			callback(req,callBackArg);
+		}
+		else{
+			console.log("getData(URL,qName,callback,arg)--->interval--->else " + req.statusText );
+
+		}
+	},0);
 }
 
-
-//////////////FONCTION ECRITEURE DE {XML DOC} parsé avec {XSLDOC} dans {DATA DIV}
-function writeXML(dataDiv,xslDoc,xmlDoc)
+//////////////FONCTION ECRITURE DE {XML DOC} parsé avec {XSLDOC} dans {DATA DIV}
+function writeXML(dataDiv,xslDoc,xmlDoc,replace)
 {
-
-	if (window.ActiveXObject || xhttp.responseType == "msxml-document")
+	if(replace) dataDiv.innerHTML="";
+	if ("ActiveXObject" in window || window.ActiveXObject)
 	{
+		xslDoc.setProperty("AllowDocumentFunction", true);
 		ex = xmlDoc.transformNode(xslDoc);
-		dataDiv.innerHTML = ex;
+		dataDiv.innerHTML += ex;
 	}
 // code for Chrome, Firefox, Opera, etc.
 else if (document.implementation && document.implementation.createDocument)
@@ -213,7 +320,6 @@ else if (document.implementation && document.implementation.createDocument)
 
 function createPointOnMap(map,latitude,longitude,name)
 {
-	console.log(" createPointOnMap(map,latitude,longitude,name)");
 	
 	var contentString = '<h2>'+name+'</h2>';
 
@@ -233,6 +339,19 @@ function createPointOnMap(map,latitude,longitude,name)
 
 }
 
+/* //FONCTION ECTITURE XML DOC ASYNC [NON UTILISE]
+var ecritureEncours=false;
+function writeXMLAsync(dataDiv,xslDoc,xmlDoc)
+{
+	setTimeout(function(){
+		while(ecritureEncours){
+			//do nothing;&wait
+		}
+		ecritureEncours=true;
+		writeXML(dataDiv,xslDoc,xmlDoc);
+		ecritureEncours=false;
+	},0);
+}*/
 /*
 ///////////////////FONCTION CONVERSION D'ANGLES[ABANDONNE CAUSE FONCTIONS UTILISANT ABBANDONNEES]
 function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
