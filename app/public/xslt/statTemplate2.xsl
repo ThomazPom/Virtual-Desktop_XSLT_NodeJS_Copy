@@ -115,7 +115,7 @@
 </xsl:call-template> -->
 <!-- /CALL -->
 
-<xsl:template name="histogrammeRecursif"  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:template name="histogrammeRecursif"   xmlns="http://www.w3.org/2000/svg">
 	<xsl:param name="node" select="0"/>
 	<xsl:param name="decalage" select="0"/>
 	<xsl:param name="total" select="1"/>
@@ -244,7 +244,7 @@
 </xsl:call-template> -->
 <!-- /CALL -->
 
-<xsl:template name="camembertRecursif"  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:template name="camembertRecursif"  xmlns="http://www.w3.org/2000/svg">
 	<xsl:param name="node" select="0"/>
 	<xsl:param name="decalage" select="0"/>
 	<xsl:param name="total" select="1"/>
@@ -253,7 +253,6 @@
 	<xsl:variable name="portion" select="$node div $total *942"/>
 	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position]"/>
 
-	<xsl:value-of select="$couleur"/>
 	<circle r="150" cx="150" cy="150"  fill-opacity="0" style='stroke:{$couleur};stroke-width: 200;
 		stroke-dasharray: 0,{$decalage},{$portion+3},942;'>
 	</circle>
@@ -287,7 +286,6 @@
 	<xsl:variable name="portion" select="$nombre div $total *942"/>
 	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position]"/>
 
-	<xsl:value-of select="$couleur"/>
 	<circle r="150" cx="150" cy="150"  fill-opacity="0" style='stroke:{$couleur};stroke-width: 200;
 		stroke-dasharray: 0,{$decalage},{$portion+3},942;'>
 	</circle>
