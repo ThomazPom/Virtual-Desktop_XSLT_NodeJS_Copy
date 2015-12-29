@@ -34,9 +34,8 @@ app.get('/xmlData', function(req, res) {
 	console.log("Query is .. ");
 	for (var k in req.query){
 		console.log("For key " + k + ", value is " + req.query[k]);
-		stringQuery = stringQuery.replace("#"+k,req.query[k]);
+		stringQuery = stringQuery.replace(new RegExp("#"+k,'g'),req.query[k]);
 	}
-
 
 	var query = session.query(stringQuery);
 	query.results(function (err, result) {
@@ -67,15 +66,16 @@ app.get('/xmlData', function(req, res) {
 
 
 
-var xQueries = {
-	"allBase" : "/ONISEP_ETABLISSEMENT/etablissement"
-	,"UAI_NOM" : 'let $ms:=/ONISEP_ETABLISSEMENT return <etablissements> { for $m in $ms/etablissement return <etablissement> { $m/UAI,$m/nom } </etablissement> } </etablissements>'
-	,"CP": "/ONISEP_ETABLISSEMENT/etablissement/cp"
-	,"UN_ETABLISSEMENT": "/ONISEP_ETABLISSEMENT/etablissement[UAI/. = '#UAI']"
+		var xQueries = {
+	//"allBase" : "/ONISEP_ETABLISSEMENT/etablissement"
+	//,"UAI_NOM" : 'let $ms:=/ONISEP_ETABLISSEMENT return <etablissements> { for $m in $ms/etablissement return <etablissement> { $m/UAI,$m/nom } </etablissement> } </etablissements>'
+	//,"CP": "/ONISEP_ETABLISSEMENT/etablissement/cp"
+	"UN_ETABLISSEMENT": "/ONISEP_ETABLISSEMENT/etablissement[UAI/. = '#UAI']"
 	,"NOM_LAT_LON": 'let $ms:=/ONISEP_ETABLISSEMENT return <etablissements> { for $m in $ms/etablissement return <etablissement> { $m/nom,$m/latitude_Y,$m/longitude_X } </etablissement> } </etablissements>'
-	,"STAT_NBET_ACAD":'let $ms:=/ONISEP_ETABLISSEMENT/etablissement return<stat> <type>#statType</type> <nom>Nombre d&apos;établissement par académie</nom> <total>{count($ms)}</total> <nombres>{ for $etab in $ms let $acad := $etab/academie group by $acad order by $acad return <nombre name="{$acad}">{count($etab)}</nombre>} </nombres> </stat>'
-	,"STAT_NBET_REGI":'let $ms:=/ONISEP_ETABLISSEMENT/etablissement return<stat> <type>#statType</type> <nom>Nombre d&apos;établissement par région</nom> <total>{count($ms)}</total> <nombres>{ for $etab in $ms let $region := $etab/region group by $region order by $region return <nombre name="{$region}">{count($etab)}</nombre>} </nombres> </stat>'
-	,"UAI_NOM_GROUP":'let $ms:=db:open("etablissement_superieur","etablissement_superieur.xml")/ONISEP_ETABLISSEMENT/etablissement for $etab in $ms let $group := $etab/#groupeEtab group by $group order by $group return <etabGroup name="{$group}">{ for $partEtab in $etab order by $partEtab/#ordreEtab return<etablissement>{$partEtab/UAI,$partEtab/nom}</etablissement> } </etabGroup>'
+	,"STATISTIQUE":'let $ms:=/ONISEP_ETABLISSEMENT/etablissement return<stat> <type>#statType</type> <nom>Nombre d&apos;établissement par #groupEtab</nom> <total>{count($ms)}</total> <nombres>{ for $etab in $ms let $groupEtab := $etab/#groupEtab group by $groupEtab order by $groupEtab return <nombre name="{$groupEtab}">{count($etab)}</nombre>} </nombres> </stat>'
+	//,"STAT_NBET_ACAD":'let $ms:=/ONISEP_ETABLISSEMENT/etablissement return<stat> <type>#statType</type> <nom>Nombre d&apos;établissement par académie</nom> <total>{count($ms)}</total> <nombres>{ for $etab in $ms let $acad := $etab/academie group by $acad order by $acad return <nombre name="{$acad}">{count($etab)}</nombre>} </nombres> </stat>'
+	//,"STAT_NBET_REGI":'let $ms:=/ONISEP_ETABLISSEMENT/etablissement return<stat> <type>#statType</type> <nom>Nombre d&apos;établissement par région</nom> <total>{count($ms)}</total> <nombres>{ for $etab in $ms let $region := $etab/region group by $region order by $region return <nombre name="{$region}">{count($etab)}</nombre>} </nombres> </stat>'
+	,"UAI_NOM_GROUP":'let $ms:=/ONISEP_ETABLISSEMENT/etablissement for $etab in $ms let $group := $etab/#groupeEtab group by $group order by $group return <etabGroup name="{$group}">{ for $partEtab in $etab order by $partEtab/#ordreEtab return<etablissement>{$partEtab/UAI,$partEtab/nom}</etablissement> } </etabGroup>'
 };
 
 

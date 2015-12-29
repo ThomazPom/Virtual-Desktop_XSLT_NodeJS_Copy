@@ -1,4 +1,5 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:colors="colors:colors">
+					<xsl:variable name="colorCount" select="count(document('')/*/colors:colors/color)"/>
 	
 	<!-- TEMPLATE -->
 	<xsl:template match="/">
@@ -43,15 +44,12 @@
 		</xsl:if>
 
 		<xsl:if test="type='histogramme'">
-			<histogramme style="float:left;max-width:450px;margin:20px"><h3><xsl:value-of select="nom"/></h3>
+			<histogramme style="max-width:450px;margin:20px"><h3><xsl:value-of select="nom"/></h3>
 			<xsl:variable name="total"  select="total"/>
 			<svg xmlns="http://www.w3.org/2000/svg"  width="450" height="250">
 
 
 
-			<!-- 	<polygon points="30 70,80 70,60 90,10 90" style="fill:red;stroke:black;
-					stroke-width:3px;
-					stroke-opacity:0.4;" /> -->
 					
 
 					<xsl:call-template name="histogrammeRecursif">
@@ -61,7 +59,7 @@
 						<xsl:with-param name="position" select="1"/>
 					</xsl:call-template>
 
-					<line x1="0" y1="0" x2="0" y2="250" style="stroke:green" />
+					<!-- <line x1="0" y1="0" x2="0" y2="250" style="stroke:green" /> -->
 					<!-- <line x1="0" y1="250" x2="450" y2="250" style="stroke:green;stroke-width:2" /> -->
 					<line x1="0" y1="50" x2="450" y2="50" style="stroke:red" />
 
@@ -72,7 +70,7 @@
 				</svg>
 
 				<xsl:variable name="count"  select="count(./nombres/nombre)"/>
-				<xsl:choose><xsl:when test="$count&gt;10">
+				<xsl:choose><xsl:when test="$count&gt;8">
 					<table class="table">
 						<tr>
 							<th colspan="2">Nom</th>
@@ -122,7 +120,7 @@
 	<xsl:param name="position" select="1"/>
 	
 	<xsl:variable name="portion" select="substring($node*200 div $total ,0,8)"/>
-	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position]"/>
+	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position mod $colorCount + 1]"/>
 
 	<xsl:variable name="width" select="substring(370 div $decalage,0,8)"/>
 	<xsl:variable name="x" select="substring(($position*370 div $decalage)-(370 div $decalage),0,8)"/>
@@ -137,7 +135,7 @@
 		{$x+$width*1.5} {($y+$portion)-($width*0.2)}, {$x+$width} {($y+$portion)},{$x+$width} {$y},{$x} {$y}
 		" style="fill:{$couleur};stroke:black;
 		stroke-width:3px;
-		stroke-opacity:0.6;" /> 
+		stroke-opacity:0.2;" /> 
 <!-- 
 		<rect width="{$width}" x="{$x}" y="{$y}" height="{$portion}"
 			style="fill:{$couleur};
@@ -175,10 +173,10 @@
 	<xsl:param name="position" select="1"/>
 
 	<xsl:variable name="pourcentage" select="$node div $total*100"/>
-	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position]"/>
+	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position mod $colorCount + 1]"/>
 	<tr>
 		<td><div style="width: 18px;background-color: {$couleur};border-radius: 50%;height: 18px;"></div></td>
-		<td><xsl:value-of select="$node/@name"/></td>
+		<td><xsl:if test="$node/@name=''">(Aucun)</xsl:if><xsl:value-of select="$node/@name"/></td>
 		<td><xsl:value-of select="$node"/></td>
 		<td><xsl:value-of select="substring($pourcentage,0,5)"/></td>
 		<td>%</td>
@@ -209,10 +207,12 @@
 	<xsl:param name="decalage" select="0"/>
 	<xsl:param name="total" select="1"/>
 	<xsl:param name="position" select="1"/>
-	
-	<xsl:variable name="pourcentage" select="substring($node*100 div $total ,0,6)"/>
-	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position]"/>
 
+
+
+	<xsl:variable name="pourcentage" select="substring($node*100 div $total ,0,6)"/>
+	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position mod $colorCount + 1]"/>
+	
 	<xsl:variable name="width" select="substring(370 div $decalage,0,8)"/>
 	<xsl:variable name="x" select="substring(($position*370 div $decalage)-(370 div $decalage),0,8)"/>
 
@@ -251,9 +251,9 @@
 	<xsl:param name="position" select="1"/>
 	
 	<xsl:variable name="portion" select="$node div $total *942"/>
-	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position]"/>
+	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position mod $colorCount + 1]"/>
 
-	<circle r="150" cx="150" cy="150"  fill-opacity="0" style='stroke:{$couleur};stroke-width: 200;
+	<circle r="150" cx="150" cy="150"  fill-opacity="0" style='stroke:{$couleur};stroke-width: 150;
 		stroke-dasharray: 0,{$decalage},{$portion+3},942;'>
 	</circle>
 
@@ -284,7 +284,7 @@
 
 	<xsl:variable name="nombre"  select="."/>
 	<xsl:variable name="portion" select="$nombre div $total *942"/>
-	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position]"/>
+	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position mod $colorCount + 1]"/>
 
 	<circle r="150" cx="150" cy="150"  fill-opacity="0" style='stroke:{$couleur};stroke-width: 200;
 		stroke-dasharray: 0,{$decalage},{$portion+3},942;'>
@@ -303,6 +303,7 @@
 
 <colors:colors>
 
+	<color>wheat</color>
 	<color>royalblue</color>
 	<color>lime</color>
 	<color>red</color>
@@ -391,7 +392,6 @@
 	<color>tomato</color>
 	<color>turquoise</color>
 	<color>violet</color>
-	<color>wheat</color>
 	<color>yellow</color>
 	<color>yellowgreen</color>
 </colors:colors>

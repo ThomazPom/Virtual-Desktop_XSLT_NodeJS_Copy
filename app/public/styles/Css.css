@@ -18,10 +18,10 @@
 .xsltReceiver
 {
   overflow: scroll;
-      position: absolute;
+      position: absolute!important;
     width: 100%;
     margin: auto;
-    height: 75%;
+    height: 75%!important;
     bottom: 0px;
     padding-left: 40px;
 }

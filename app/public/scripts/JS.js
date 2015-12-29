@@ -97,7 +97,7 @@ function initMap(divFrame) {
 
 var groupes = {
 	"type":"Type"
-	,"nom":"Nom"
+	//,"nom":"Nom"
 	,"sigle":"Sigle"
 	,"statut":"Statut"
 	,"tutelle":"Tutelle"
@@ -125,7 +125,7 @@ var ordres = {
 }
 function initDataExplorer(divFrame)
 {
-	divFrame.append("<div class='form-group'><div class='container'><table><tr><td><label>Grouper les établissement par..</label><select class='selectDataClassement form-control'></select></td>"
+	divFrame.append("<div class='form-group' ><div class='container'><table><tr><td><label>Grouper les établissement par..</label><select class='selectDataClassement form-control'></select></td>"
 		+"<td><label>Ordonner les résultats par..</label><select class='selectDataOrder form-control'></select></td></tr></table></div></div>");
 
 	var selectDataClassement =  divFrame.find(".selectDataClassement");
@@ -169,37 +169,54 @@ function majDataExplorer(xsltreceiver,groupby,orderby)
 }
 function initStatistic(divFrame)
 {
-	divFrame.append("<h1>Statistiques de la base de données</h1>");
-	var xsltreceiver = document.createElement("div");
-	xsltreceiver.className ="xsltReceiver";
-	xsltreceiver.id="xsltReceiver"+idDivContent
-	divFrame.append(xsltreceiver);
-	
-	getData("/xmlData",{"queryName":"STAT_NBET_REGI","statType":"histogramme"},undefined,function(xmlData)
+	divFrame.append(
+	'<div class="container" style="position: absolute;top: 0px;"><h1>Statistiques de la base de données</h1><h3>Afficher les statistiques en forme de ...</h3><div class="btn-group" data-toggle="buttons"> <label class="btn btn-primary active"> <input type="radio" name="options" value="camembert" autocomplete="off" checked> Camembert</label> <label class="btn btn-primary"> <input type="radio" name="options" value="histogramme" autocomplete="off"> Histogramme </label> </div></div>'
+	);
+var xsltreceiver = document.createElement("div");
+
+xsltreceiver.className ="xsltReceiver";
+xsltreceiver.id="xsltReceiver"+idDivContent
+divFrame.append(xsltreceiver);
+
+divFrame.find("input[type='radio']").change(function()
+{
+	majStatistiques(xsltreceiver,$(this).val());
+});
+majStatistiques(xsltreceiver,divFrame.find("input[checked]").val());
+
+
+}
+function majStatistiques(xsltreceiver,statType)
+{
+	xsltreceiver.innerHTML="";
+	var asyncRunning=0;
+	for (var k in groupes){
+		asyncRunning++;
+		getData("/xmlData",{"queryName":"STATISTIQUE","statType":statType,"groupEtab":k},k,function(xmlData)
+		{
+			writeXML(xsltreceiver,templateStat,xmlData.responseXML);
+			asyncRunning--;
+			if(asyncRunning==0)
+			{
+				console.log("Masonry")
+				$(xsltreceiver).masonry('destroy').masonry();
+			}
+		});
+	}
+	//
+	/*
+	getData("/xmlData",{"queryName":"STATISTIQUE","statType":"camembert","groupEtab":"academie"},undefined,function(xmlData)
 	{
 		writeXML(xsltreceiver,templateStat,xmlData.responseXML);
 	});
-	getData("/xmlData",{"queryName":"STAT_NBET_REGI","statType":"camembert"},undefined,function(xmlData)
+	getData("/xmlData",{"queryName":"STATISTIQUE","statType":"histogramme","groupEtab":"region"},undefined,function(xmlData)
 	{
 		writeXML(xsltreceiver,templateStat,xmlData.responseXML);
 	});
-	getData("/xmlData",{"queryName":"STAT_NBET_ACAD","statType":"camembert"},undefined,function(xmlData)
+	getData("/xmlData",{"queryName":"STATISTIQUE","statType":"camembert","groupEtab":"type"},undefined,function(xmlData)
 	{
 		writeXML(xsltreceiver,templateStat,xmlData.responseXML);
-	});
-
-	getData("/xmlData",{"queryName":"STAT_NBET_ACAD","statType":"histogramme"},undefined,function(xmlData)
-	{
-		writeXML(xsltreceiver,templateStat,xmlData.responseXML);
-	});
-
-		// getData("/debug/OneStat.xml",{},xsltreceiver,function(xmlData,xsltreceiver)
-		// {
-		// 	writeXML(xsltreceiver,xslData.responseXML,xmlData.responseXML);
-		// });
-
-
-
+	});*/
 }
 
 //////FONCTION DE COLORISATION DE CAMEMBERT[ABANDONNE CAUSE REPLACE FULL XSLT]
@@ -222,7 +239,6 @@ function viewEtab(sender)
 	}
 	getData("/xmlData",{"queryName":"UN_ETABLISSEMENT","UAI":sender.id},undefined,function(xmlData)
 	{
-		console.log(xmlData);
 		writeXML(xsltreceiver,templateEtab,xmlData.responseXML);
 	});
 }
