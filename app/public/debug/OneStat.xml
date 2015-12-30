@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="/xslt/statTemplate2.xsl"?>
 <root>
 	<stat>
-		<type>camembert</type>
+		<type>histogramme</type>
 		<nom>Pourcentage d'établissements privés / public</nom>
 		<total>3025</total>
 		<nombres>
@@ -31,7 +31,7 @@
 		</nombres>
 	</stat>
 	<stat>
-		<type>camembert</type>
+		<type>histogramme</type>
 		<nom>Pourcentage de personnes handicapées</nom>
 		<total>55</total>
 		<nombres>

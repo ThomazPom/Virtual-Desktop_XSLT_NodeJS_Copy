@@ -22,6 +22,31 @@ var topDivContent =null;
 var templateExplorer = null;
 var templateStat = null;
 var templateEtab = null;
+var divWaiter = $("#waiter");
+var meter = divWaiter.children(".meter").children("span");
+var percentMeter = divWaiter.children(".meter").children("h3").children("text");
+divWaiter.draggable();
+var meterObject =
+{
+	uStep:0,
+	curent:0,
+	init:function(pTotal){
+		divWaiter.css("display","block");
+		meter.css("width","0%");
+		this.curent=0;
+		this.uStep=100/pTotal;
+		percentMeter.html((this.curent+"").substring(0,2)+"%")
+	},
+	step:function(){
+		this.curent+=this.uStep;
+		meter.css("width",this.curent+"%");
+		percentMeter.html((this.curent+"").substring(0,2)+"%")
+		if (this.curent>=100){
+			divWaiter.css("display","none");
+		}
+	}
+}
+
 
 getData("/xslt/explorer.xsl",{},undefined,function(xslResponse){
 	templateExplorer=xslResponse.responseXML;
@@ -97,7 +122,7 @@ function initMap(divFrame) {
 
 var groupes = {
 	"type":"Type"
-	//,"nom":"Nom"
+	,"nom":"Nom"
 	,"sigle":"Sigle"
 	,"statut":"Statut"
 	,"tutelle":"Tutelle"
@@ -138,7 +163,6 @@ function initDataExplorer(divFrame)
 			text: groupes[k]
 		}));
 	}
-
 	for (var k in ordres){
 		selectDataOrder.append($('<option>', {
 			value: k,
@@ -149,7 +173,6 @@ function initDataExplorer(divFrame)
 	xsltreceiver.className ="xsltReceiver";
 	xsltreceiver.id="xsltReceiver"+idDivContent;
 	divFrame.append(xsltreceiver);
-
 	var changeEvent= function()
 	{
 		majDataExplorer(xsltreceiver,selectDataClassement.val(),selectDataOrder.val());
@@ -161,7 +184,6 @@ function initDataExplorer(divFrame)
 
 function majDataExplorer(xsltreceiver,groupby,orderby)
 {
-
 	getData("/xmlData",{"queryName":"UAI_NOM_GROUP","groupeEtab":groupby,"ordreEtab":orderby},xsltreceiver,function(xmlResponse,xsltreceiver)
 	{
 		writeXML(xsltreceiver,templateExplorer,xmlResponse.responseXML,true)
@@ -169,71 +191,54 @@ function majDataExplorer(xsltreceiver,groupby,orderby)
 }
 function initStatistic(divFrame)
 {
-	divFrame.append(
-	'<div class="container" style="position: absolute;top: 0px;"><h1>Statistiques de la base de données</h1><h3>Afficher les statistiques en forme de ...</h3><div class="btn-group" data-toggle="buttons"> <label class="btn btn-primary active"> <input type="radio" name="options" value="camembert" autocomplete="off" checked> Camembert</label> <label class="btn btn-primary"> <input type="radio" name="options" value="histogramme" autocomplete="off"> Histogramme </label> </div></div>'
-	);
-var xsltreceiver = document.createElement("div");
-
-xsltreceiver.className ="xsltReceiver";
-xsltreceiver.id="xsltReceiver"+idDivContent
-divFrame.append(xsltreceiver);
-
-divFrame.find("input[type='radio']").change(function()
-{
-	majStatistiques(xsltreceiver,$(this).val());
-});
-majStatistiques(xsltreceiver,divFrame.find("input[checked]").val());
-
-
+	divFrame.append('<div class="container" style="position: absolute;top: 0px;"><h1>Statistiques de la base de données</h1><h3>Afficher les statistiques en forme de ...</h3><div class="btn-group" data-toggle="buttons"> <label class="btn btn-primary active"> <input type="radio" name="options" value="camembert" autocomplete="off" checked> Camembert</label> <label class="btn btn-primary"> <input type="radio" name="options" value="histogramme" autocomplete="off"> Histogramme </label> </div></div>');
+	var xsltreceiver = document.createElement("div");
+	xsltreceiver.className ="xsltReceiver";
+	xsltreceiver.id="xsltReceiver"+idDivContent
+	$(xsltreceiver).masonry();
+	divFrame.append(xsltreceiver);
+	divFrame.find("input[type='radio']").change(function()
+	{
+		majStatistiques(xsltreceiver,$(this).val());
+	});
+	majStatistiques(xsltreceiver,divFrame.find("input[checked]").val());
 }
 function majStatistiques(xsltreceiver,statType)
 {
 	xsltreceiver.innerHTML="";
 	var asyncRunning=0;
+	var total=0;
+	var stepForStat= function(){
+
+		meterObject.step();
+		asyncRunning--;	
+		if(asyncRunning==0)
+		{
+			console.log("Masonry")
+			$(xsltreceiver).masonry('destroy').masonry();
+		}
+	}
+
 	for (var k in groupes){
 		asyncRunning++;
-		getData("/xmlData",{"queryName":"STATISTIQUE","statType":statType,"groupEtab":k},k,function(xmlData)
+		total++;
+		getData("/xmlData",{"queryName":"STATISTIQUE","statType":statType,"groupEtab":k},k,function(xmlData,retourK)
 		{
-			writeXML(xsltreceiver,templateStat,xmlData.responseXML);
-			asyncRunning--;
-			if(asyncRunning==0)
-			{
-				console.log("Masonry")
-				$(xsltreceiver).masonry('destroy').masonry();
-			}
+
+			writeXMLAsync(xsltreceiver,templateStat,xmlData.responseXML,false,undefined,stepForStat);
+			// writeXML(xsltreceiver,templateStat,xmlData.responseXML);
+			 //stepForStat();
 		});
 	}
-	//
-	/*
-	getData("/xmlData",{"queryName":"STATISTIQUE","statType":"camembert","groupEtab":"academie"},undefined,function(xmlData)
-	{
-		writeXML(xsltreceiver,templateStat,xmlData.responseXML);
-	});
-	getData("/xmlData",{"queryName":"STATISTIQUE","statType":"histogramme","groupEtab":"region"},undefined,function(xmlData)
-	{
-		writeXML(xsltreceiver,templateStat,xmlData.responseXML);
-	});
-	getData("/xmlData",{"queryName":"STATISTIQUE","statType":"camembert","groupEtab":"type"},undefined,function(xmlData)
-	{
-		writeXML(xsltreceiver,templateStat,xmlData.responseXML);
-	});*/
+	console.log("WILL INIT");
+	meterObject.init(total);
+	meterObject.step();
 }
 
-//////FONCTION DE COLORISATION DE CAMEMBERT[ABANDONNE CAUSE REPLACE FULL XSLT]
-/*
-function drawCamembertsXsL(xsltreceiver)
-{
-	$(xsltreceiver).find("camembert").each(function(){
-		$(this).children("svg").children("circle").each(function(){
-			$(this).css("stroke",'#'+Math.random().toString(16).substr(2,6))
-		});
-	});
-}*/
 
 function viewEtab(sender)
 {
 	xsltreceiver=$(sender).children(".collapse").children(".panel-body")[0];
-	
 	if (/\S/.test(xsltreceiver.innerHTML)) {
 		return;
 	}
@@ -242,8 +247,6 @@ function viewEtab(sender)
 		writeXML(xsltreceiver,templateEtab,xmlData.responseXML);
 	});
 }
-
-
 
 function formatDataIE(data){
 	if(data.responseXML.firstElmentChild==undefined);
@@ -257,8 +260,6 @@ function formatDataIE(data){
 ////////////////////////FONCTION DE PLACEMENTS DES POINTS DANS {DATA} SUR {MAP}
 function placeAllPointsOn(data,map)
 {
-	// console.log(data.responseXML.documentElement.firstElementChild);
-	// console.log(map);
 	data=formatDataIE(data);
 	console.log(" placeAllPointsOn(data,map)");
 	var etablissements= data.responseXML.firstChild.firstElementChild;
@@ -270,45 +271,38 @@ function placeAllPointsOn(data,map)
 		var longitude = etablissement.childNodes[5].firstChild.nodeValue;
 		createPointOnMap(map,latitude,longitude,nom)
 	}
-
-
 }
 
 ///////////////////////Get data utilisant JAVASCRIPT
-
 function getData(URL,args,callBackArg,callback)
 {
-	console.log("getData(qName,callback,arg)");
 	var req=null;
-	if ("ActiveXObject" in window)
-	{
-		req = new ActiveXObject("Msxml2.XMLHTTP");
-	}
-	else 
-	{
-		req = new XMLHttpRequest();
-	}
-
+	console.log("getData(qName,callback,arg)");
 	var argString="?";
 	for (var k in args){
 		argString+=k+"="+args[k]+"&";
 	}
-
+	ready = function() {
+		if (req.readyState == 4) {
+			if(req.status == 200) {
+				console.log("getData(URL,qName,callback,arg)--->interval--->callback");
+				callback(req,callBackArg);
+			}
+		}
+	}
+	if ("ActiveXObject" in window)
+	{            
+		req = new ActiveXObject("Msxml2.XMLHTTP.6.0");
+	}
+	else 
+	{
+		req = new XMLHttpRequest();	
+	}
+	req.onreadystatechange = ready;
 	req.open("GET", URL+argString, true);
-
 	req.send("");
-	var interval = setInterval(function(){ 
-		if(req.responseXML!=null)
-		{
-			clearInterval(interval);
-			console.log("getData(URL,qName,callback,arg)--->interval--->callback");
-			callback(req,callBackArg);
-		}
-		else{
-			console.log("getData(URL,qName,callback,arg)--->interval--->else " + req.statusText );
+	return;
 
-		}
-	},0);
 }
 
 //////////////FONCTION ECRITURE DE {XML DOC} parsé avec {XSLDOC} dans {DATA DIV}
@@ -319,30 +313,24 @@ function writeXML(dataDiv,xslDoc,xmlDoc,replace)
 	{
 		xslDoc.setProperty("AllowDocumentFunction", true);
 		ex = xmlDoc.transformNode(xslDoc);
-		dataDiv.innerHTML += ex;
+		dataDiv.innerHTML+=ex;
 	}
-// code for Chrome, Firefox, Opera, etc.
-else if (document.implementation && document.implementation.createDocument)
-{
-	xsltProcessor = new XSLTProcessor();
-	xsltProcessor.importStylesheet(xslDoc);
-	resultDocument = xsltProcessor.transformToFragment(xmlDoc, document);
-	dataDiv.appendChild(resultDocument);
-}
+	else if (document.implementation && document.implementation.createDocument)
+	{
+		xsltProcessor = new XSLTProcessor();
+		xsltProcessor.importStylesheet(xslDoc);
+		resultDocument = xsltProcessor.transformToFragment(xmlDoc, document);
+
+		dataDiv.appendChild(resultDocument);
+	}
 
 }
-
-
-
 function createPointOnMap(map,latitude,longitude,name)
 {
-	
 	var contentString = '<h2>'+name+'</h2>';
-
 	var infowindow = new google.maps.InfoWindow({
 		content: contentString
 	});
-
 	var marker = new google.maps.Marker({
 		position: {lat: parseFloat(latitude), lng: parseFloat(longitude)},
 		map: map,
@@ -351,23 +339,26 @@ function createPointOnMap(map,latitude,longitude,name)
 	marker.addListener('click', function() {
 		infowindow.open(map, marker);
 	});
-
-
 }
+ //FONCTION ECTITURE XML DOC ASYNC
+ var ecritureEncours=false;
+ function writeXMLAsync(dataDiv,xslDoc,xmlDoc,replace,callBackArg,callback)
+ {
+ 	var interval =	setInterval(function(){
+ 		if(!ecritureEncours){
+ 			ecritureEncours=true;
+ 			clearInterval(interval);
+ 			writeXML(dataDiv,xslDoc,xmlDoc,replace);
+ 			ecritureEncours=false;
+ 			callback(callBackArg);
 
-/* //FONCTION ECTITURE XML DOC ASYNC [NON UTILISE]
-var ecritureEncours=false;
-function writeXMLAsync(dataDiv,xslDoc,xmlDoc)
-{
-	setTimeout(function(){
-		while(ecritureEncours){
-			//do nothing;&wait
-		}
-		ecritureEncours=true;
-		writeXML(dataDiv,xslDoc,xmlDoc);
-		ecritureEncours=false;
-	},0);
-}*/
+ 		}
+ 		else{
+ 			console.log("wait writing ! ")
+ 		}
+ 	},100);
+ }
+
 /*
 ///////////////////FONCTION CONVERSION D'ANGLES[ABANDONNE CAUSE FONCTIONS UTILISANT ABBANDONNEES]
 function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
@@ -467,3 +458,13 @@ document.getElementById("arc1").setAttribute("d", describeArc(200, 400, 100, 0, 
 
 }
 */
+//////FONCTION DE COLORISATION DE CAMEMBERT[ABANDONNE CAUSE REPLACE FULL XSLT]
+/*
+function drawCamembertsXsL(xsltreceiver)
+{
+	$(xsltreceiver).find("camembert").each(function(){
+		$(this).children("svg").children("circle").each(function(){
+			$(this).css("stroke",'#'+Math.random().toString(16).substr(2,6))
+		});
+	});
+}*/
