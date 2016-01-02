@@ -122,15 +122,15 @@ function initMap(divFrame) {
 
 var groupes = {
 	"type":"Type"
-	,"nom":"Nom"
-	,"sigle":"Sigle"
 	,"statut":"Statut"
 	,"tutelle":"Tutelle"
-	,"universite":"Université"
-	,"cp":"Code Postal"
-	,"commune":"Commune"
-	,"academie":"Académie"
 	,"region":"Région"
+	,"universite":"Université"
+	,"academie":"Académie"
+	,"commune":"Commune"
+	,"nom":"Nom"
+	,"sigle":"Sigle"
+	,"cp":"Code Postal"
 }
 var ordres = {
 	"UAI":"UAI",
@@ -191,17 +191,30 @@ function majDataExplorer(xsltreceiver,groupby,orderby)
 }
 function initStatistic(divFrame)
 {
-	divFrame.append('<div class="container" style="position: absolute;top: 0px;"><h1>Statistiques de la base de données</h1><h3>Afficher les statistiques en forme de ...</h3><div class="btn-group" data-toggle="buttons"> <label class="btn btn-primary active"> <input type="radio" name="options" value="camembert" autocomplete="off" checked> Camembert</label> <label class="btn btn-primary"> <input type="radio" name="options" value="histogramme" autocomplete="off"> Histogramme </label> </div></div>');
+	divFrame.append('<div class="container" style="position: absolute;top: 0px;"><h1>Statistiques de la base de données</h1><h3>Afficher les statistiques en forme de ...</h3><div class="btn-group" data-toggle="buttons"> <label class="btn btn-primary active"> <input type="radio" name="options" value="camembert" autocomplete="off" checked> Camembert</label> <label class="btn btn-primary"> <input type="radio" name="options" value="histogramme" autocomplete="off"> Histogramme </label> <input class="btn btn-primary dwnStatBtn" type="button" value= "Télécharger ces statistiques au format PDF"></input></div></div>');
 	var xsltreceiver = document.createElement("div");
 	xsltreceiver.className ="xsltReceiver";
 	xsltreceiver.id="xsltReceiver"+idDivContent
 	$(xsltreceiver).masonry();
 	divFrame.append(xsltreceiver);
+	var dwLink = divFrame.find('.dwnStatBtn');
 	divFrame.find("input[type='radio']").change(function()
 	{
-		majStatistiques(xsltreceiver,$(this).val());
+		var statType=$(this).val();
+		changeDwURL(statType,dwLink)
+		majStatistiques(xsltreceiver,statType);
 	});
-	majStatistiques(xsltreceiver,divFrame.find("input[checked]").val());
+	var statType=divFrame.find("input[checked]").val();
+	changeDwURL(statType,dwLink)
+	majStatistiques(xsltreceiver,statType);
+}
+function changeDwURL(statType,dwLink)
+{
+	var url = "/pdfStat?"
+	for (var k in groupes){
+		url+=k+"="+statType+"&";
+	}
+	dwLink.attr("onclick",'location.href=\''+url+'\'');
 }
 function majStatistiques(xsltreceiver,statType)
 {
@@ -228,7 +241,7 @@ function majStatistiques(xsltreceiver,statType)
 			writeXMLAsync(xsltreceiver,templateStat,xmlData.responseXML,false,undefined,stepForStat);
 			// writeXML(xsltreceiver,templateStat,xmlData.responseXML);
 			 //stepForStat();
-		});
+			});
 	}
 	console.log("WILL INIT");
 	meterObject.init(total);
