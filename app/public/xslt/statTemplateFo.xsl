@@ -61,7 +61,7 @@
 					<xsl:if test="type='histogramme'">
 						<fo:block>	
 							<fo:instream-foreign-object>
-								<svg width="130mm" height="100mm" version="1.1" xmlns="http://www.w3.org/2000/svg">
+								<svg width="190mm" height="100mm" version="1.1" xmlns="http://www.w3.org/2000/svg">
 									<xsl:call-template name="histoRecCaller">
 										<xsl:with-param name="count" select="$count"/>
 										<xsl:with-param name="callPos" select="0"/>
@@ -216,8 +216,8 @@
 	</xsl:if>
 	<xsl:variable name="portion" select="$node*200 div $total"/>
 	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[($decalage - $position+1) mod $colorCount + 1]"/>
-	<xsl:variable name="width" select="300 div $decalage"/>
-	<xsl:variable name="x" select="substring(300-($position*300 div $decalage),0,8)"/>
+	<xsl:variable name="width" select="350 div $decalage"/>
+	<xsl:variable name="x" select="substring(350-($position*350 div $decalage),0,8)"/>
 	<xsl:variable name="y" select="250-$portion"/>
 	<xsl:variable name="p1" select="$x+$width"/>
 	<xsl:variable name="p2" select="($y)-($width*0.2)"/>
@@ -239,7 +239,7 @@
 		<xsl:variable name="pourcentage" select="$node div $total*100"/>
 		<xsl:variable name="couleur" select="document('')/*/colors:colors/color[($position+ 1) mod $colorCount + 1]"/>
 		<fo:table-row>
-			<fo:table-cell><fo:block  background-color="{$couleur}">&#160;<xsl:value-of select="$position"/></fo:block></fo:table-cell>
+			<fo:table-cell><fo:block  background-color="{$couleur}">&#160;</fo:block></fo:table-cell>
 			<fo:table-cell><fo:block><xsl:if test="$node/@name=''">(Aucun)</xsl:if><xsl:value-of select="$node/@name"/></fo:block></fo:table-cell>
 			<fo:table-cell><fo:block><xsl:value-of select="$node"/></fo:block></fo:table-cell>
 			<fo:table-cell><fo:block><xsl:value-of select="substring($pourcentage,0,5)"/>%</fo:block></fo:table-cell>

@@ -19,16 +19,23 @@ session.execute('open etablissement_superieur');
 app.get('/', function(req, res) {
 	res.render("index.ejs");
 });
-
 app.get("/pdfStat", function(req, res) {
 	var id =new Date().valueOf();
 	fs.open('tmp/xmlStat'+id+".xml", 'a', function(err, fd){
+
+		res.setHeader('Content-disposition', 'inline; filename="Statistiques sur la base de données des établissement superieurs"');
+		res.setHeader('Content-type', 'application/pdf');
+		
 		fs.appendFileSync(fd, '<?xml version="1.0" encoding="UTF-8"?><root>');
 		var querycount=0;
 		queryIndice=0;
+
 		var exportPDF = function(){
+
+			var pdfPath ='tmp\\pdfStat'+id+'.pdf';
 			fs.appendFileSync(fd, '</root>');
-			child = exec('fop-2.0\\fop.cmd -xml tmp\\xmlStat'+id+'.xml -xsl public\\xslt\\statTemplateFo.xsl -pdf tmp\\pdfStat'+id+'.pdf',
+
+			child = exec('fop-2.0\\fop.cmd -xml tmp\\xmlStat'+id+'.xml -xsl public\\xslt\\statTemplateFo.xsl -pdf '+pdfPath,
 				function (error, stdout, stderr) {
 					console.log('stdout: ' + stdout);
 					console.log('stderr: ' + stderr);
@@ -36,42 +43,56 @@ app.get("/pdfStat", function(req, res) {
 						console.log('exec error: ' + error);
 					}
 				});
-		}
 
-		for (var k in req.query){
-			querycount++
-		}
-		for (var k in req.query){
-			console.log("For key " + k + ", value is " + req.query[k]);
-			stringQuery = xQueries['STATISTIQUE'].replace(new RegExp("#groupEtab",'g'),k).replace("#statType",req.query[k]);
-			var query = session.query(stringQuery);
-			query.results(function (err, result) {
-				var arrayLength = result.result.length;
-				
-				var writeInFile = function(indice,chaine){
-					var EOF= indice>=arrayLength
-					if (!EOF) {
-						console.log(fd+" "+id +" "+indice);
-						fs.appendFile(fd, result.result[indice], 'utf8', function(){
-							indice++;
-							writeInFile(indice);
-						});
-					}
-					else if (EOF && queryIndice==querycount) {
+			child.on('close', function (code) {
+				console.log('Fin de la generation du PDF :' + code);
 
-						exportPDF();
-					};
-
-				}
-
-				queryIndice++;
-				writeInFile(0);
-
-
+				res.download('tmp\\pdfStat'+id+'.pdf');
 			});
+/*
+			var interval = setInterval(function(){
+				fs.stat(pdfPath,function(err, stats){
+					console.log(stats);
+					clearInterval(interval);
+
+				});
+},1000);*/
+
+}
+
+for (var k in req.query){
+	querycount++
+}
+for (var k in req.query){
+	console.log("For key " + k + ", value is " + req.query[k]);
+	stringQuery = xQueries['STATISTIQUE'].replace(new RegExp("#groupEtab",'g'),k).replace("#statType",req.query[k]);
+	var query = session.query(stringQuery);
+	query.results(function (err, result) {
+		var arrayLength = result.result.length;
+
+		var writeInFile = function(indice,chaine){
+			var EOF= indice>=arrayLength
+			if (!EOF) {
+				console.log(fd+" "+id +" "+indice);
+				fs.appendFile(fd, result.result[indice], 'utf8', function(){
+					indice++;
+					writeInFile(indice);
+				});
+			}
+			else if (EOF && queryIndice==querycount) {
+				exportPDF();
+			};
+
 		}
+
+		queryIndice++;
+		writeInFile(0);
+
 
 	});
+}
+
+});
 });
 
 app.get('/xmlData', function(req, res) {
