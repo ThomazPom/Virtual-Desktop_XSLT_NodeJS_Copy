@@ -133,9 +133,10 @@
 	</xsl:if>
 
 	<xsl:variable name="portion" select="$node*200 div $total"/>
-	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[($decalage)- $position mod $colorCount + 2]"/>
-	<xsl:variable name="width" select="370 div $decalage"/>
-	<xsl:variable name="x" select="substring(370-($position*370 div $decalage),0,8)"/>
+
+	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[($decalage - $position+1) mod $colorCount + 1]"/>
+	<xsl:variable name="width" select="300 div $decalage"/>
+	<xsl:variable name="x" select="substring(300-($position*300 div $decalage),0,8)"/>
 	<xsl:variable name="y" select="250-$portion"/>
 	<xsl:variable name="p1" select="$x+$width"/>
 	<xsl:variable name="p2" select="($y)-($width*0.2)"/>
@@ -253,7 +254,7 @@
 	<xsl:param name="total" select="1"/>
 	<xsl:param name="position" select="1"/>
 	
-	<xsl:variable name="portion" select="$node div $total *942"/>
+	<xsl:variable name="portion" select="$node div $total *939"/>
 
 	<xsl:if test="$node/following-sibling::nombre">
 		<xsl:call-template name="camembertRecursif">
@@ -267,7 +268,7 @@
 	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position mod $colorCount + 1]"/>
 
 	<circle r="150" cx="150" cy="150"  fill-opacity="0" style='stroke:{$couleur};stroke-width: 150;
-		stroke-dasharray: 0,{$decalage},{$portion+3},942;'>
+		stroke-dasharray: 0,{$decalage},{$portion+3},939;'>
 	</circle>
 
 	

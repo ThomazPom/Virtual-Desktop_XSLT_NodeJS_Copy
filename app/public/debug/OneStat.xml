@@ -1,35 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/xslt/statTemplate2.xsl"?>
+<?xml-stylesheet type="text/xsl" href="/xslt/statTemplateFo.xsl"?>
 <root>
 	<stat>
 		<type>histogramme</type>
 		<nom>Pourcentage d'établissements privés / public</nom>
-		<total>3025</total>
+		<total>1000</total>
 		<nombres>
 			<nombre name="Autres">100</nombre>
-			<nombre name="Et.Privés">1000</nombre>
-			<nombre name="Et.Publics">1025</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">50</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">30</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">10</nombre>
-			<nombre name="Autres">200</nombre>
 			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			
 		</nombres>
 	</stat>
+	<stat>
+		<type>histogramme</type>
+		<nom>Pourcentage d'établissements privés / public</nom>
+		<total>2000</total>
+		<nombres>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			<nombre name="Autres">100</nombre>
+			
+		</nombres>
+	</stat>
+
 	<stat>
 		<type>histogramme</type>
 		<nom>Pourcentage de personnes handicapées</nom>

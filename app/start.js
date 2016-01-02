@@ -2,71 +2,128 @@ var express = require('express');
 var app = express();
 app.use(express.static('public'));
 var basex = require('basex');
+var fs = require('fs');
 var session = new basex.Session();
-
-
+var ostype = require('os').type();
 var fs = require('fs');
 var http = require('http');
 var https = require('https');
 var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
 var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
-
 var credentials = {key: privateKey, cert: certificate};
 var httpServer = http.createServer(app);
+var exec = require('child_process').exec,child;
 var httpsServer = https.createServer(credentials, app);
-
 session.execute('open etablissement_superieur');
 
 app.get('/', function(req, res) {
 	res.render("index.ejs");
 });
+
+app.get("/pdfStat", function(req, res) {
+	var id =new Date().valueOf();
+	fs.open('tmp/xmlStat'+id+".xml", 'a', function(err, fd){
+		fs.appendFileSync(fd, '<?xml version="1.0" encoding="UTF-8"?><root>');
+		var querycount=0;
+		queryIndice=0;
+		var exportPDF = function(){
+			fs.appendFileSync(fd, '</root>');
+			child = exec('fop-2.0\\fop.cmd -xml tmp\\xmlStat'+id+'.xml -xsl public\\xslt\\statTemplateFo.xsl -pdf tmp\\pdfStat'+id+'.pdf',
+				function (error, stdout, stderr) {
+					console.log('stdout: ' + stdout);
+					console.log('stderr: ' + stderr);
+					if (error !== null) {
+						console.log('exec error: ' + error);
+					}
+				});
+		}
+
+		for (var k in req.query){
+			querycount++
+		}
+		for (var k in req.query){
+			console.log("For key " + k + ", value is " + req.query[k]);
+			stringQuery = xQueries['STATISTIQUE'].replace(new RegExp("#groupEtab",'g'),k).replace("#statType",req.query[k]);
+			var query = session.query(stringQuery);
+			query.results(function (err, result) {
+				var arrayLength = result.result.length;
+				
+				var writeInFile = function(indice,chaine){
+					var EOF= indice>=arrayLength
+					if (!EOF) {
+						console.log(fd+" "+id +" "+indice);
+						fs.appendFile(fd, result.result[indice], 'utf8', function(){
+							indice++;
+							writeInFile(indice);
+						});
+					}
+					else if (EOF && queryIndice==querycount) {
+
+						exportPDF();
+					};
+
+				}
+
+				queryIndice++;
+				writeInFile(0);
+
+
+			});
+		}
+
+	});
+});
+
 app.get('/xmlData', function(req, res) {
 	var qName=req.query.queryName;
 
-
+	
 	if(qName==undefined)
 	{
 		console.log("Query name was undefined ! ");
 		qName="CP";
 	}
-
 	var stringQuery = xQueries[qName];
 	console.log("Query is .. ");
 	for (var k in req.query){
 		console.log("For key " + k + ", value is " + req.query[k]);
 		stringQuery = stringQuery.replace(new RegExp("#"+k,'g'),req.query[k]);
 	}
-
 	var query = session.query(stringQuery);
+
+	var stringQuery = xQueries[qName];
+	
+
 	query.results(function (err, result) {
 		
 		res.setHeader('content-type', 'application/xml');
 		res.write('<?xml version="1.0" encoding="UTF-8"?>');
 		res.write('<root>');
 		if (err) {
-			
+
 			res.write('</root>');
 			res.end();
 			return;
 		};
 		var arrayLength = result.result.length;
 		for (var i = 0; i < arrayLength; i++) {
-		//console.log(result.result[i]);
-		res.write(result.result[i]);
-	};
-	res.write('</root>');
-	res.end();
+			res.write(result.result[i]);
+				//console.log(result.result[i]);
+			};
+			res.write('</root>');
+
+			res.end();
+		});
+});
+
 	//res.send('<?xml version="1.0" encoding="UTF-8"?><root>'+result.result.join("")+"</root>");
-});
-});
 
 
 
 
 
 
-
-		var xQueries = {
+	var xQueries = {
 	//"allBase" : "/ONISEP_ETABLISSEMENT/etablissement"
 	//,"UAI_NOM" : 'let $ms:=/ONISEP_ETABLISSEMENT return <etablissements> { for $m in $ms/etablissement return <etablissement> { $m/UAI,$m/nom } </etablissement> } </etablissements>'
 	//,"CP": "/ONISEP_ETABLISSEMENT/etablissement/cp"
