@@ -6,7 +6,7 @@
 				<h2>Liste des établissements</h2>
 
 				<xsl:for-each select="root/etabGroup">
-					<xsl:variable name="namegroup" select="position()"></xsl:variable>
+					<xsl:variable name="namegroup" select="generate-id(.) "></xsl:variable>
 					<div class="panel panel-default" id="{$namegroup}" >
 						<div class="panel-heading" role="tab" id="heading{$namegroup}">
 							<h4 class="panel-title">
@@ -45,8 +45,9 @@
 	<div class="panel-group" role="tablist" aria-multiselectable="false">
 		<xsl:for-each select="$node/etablissement">
 
-			<xsl:variable name="namegroup"  select="UAI"/>
-			<div class="panel panel-default" id="{$namegroup}" onclick="viewEtab(this)">
+			<xsl:variable name="namegroup"  select="generate-id(.)"/>
+			<xsl:variable name="UAI"  select="UAI"/>
+			<div class="panel panel-default"  title="{UAI}" id="{$namegroup}" onclick="viewEtab(this)">
 				<div class="panel-heading" role="tab" id="heading{$namegroup}">
 					<h4 class="panel-title">
 						<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{$namegroup}" aria-expanded="false" aria-controls="collapse{$namegroup}">

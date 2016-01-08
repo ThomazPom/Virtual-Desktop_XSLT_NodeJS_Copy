@@ -164,7 +164,6 @@
 	</xsl:call-template>
 	<xsl:if test="$callPos+500 &lt; $count">
 		<xsl:variable name="totaldecal" select="sum($parent/nombre[$callPos+500]/preceding-sibling::nombre)"/>
-		<text x="10" y="200" fill="blue" style="font-size: 40px;">HELLO<xsl:value-of select="$totaldecal"/></text>
 		<xsl:call-template name="camRecCaller">
 			<xsl:with-param name="callPos" select="$callPos + 500"/>
 			<xsl:with-param name="parent" select="$parent"/>
@@ -196,7 +195,7 @@
 	</xsl:if>
 	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position mod $colorCount + 1]"/>
 	<circle r="100" cx="150" cy="150"  fill-opacity="0" style='stroke:{$couleur};stroke-width: 50;
-		stroke-dasharray: 0,{$decalage},{$portion+3},940;'><xsl:value-of select="$position"/>
+		stroke-dasharray: 0,{$decalage},{$portion+3},940;'>
 	</circle>
 </xsl:template>
 <xsl:template name="histoRec"   xmlns="http://www.w3.org/2000/svg">
@@ -223,10 +222,7 @@
 	<xsl:variable name="p2" select="($y)-($width*0.2)"/>
 	<xsl:variable name="p3" select="$x+$width*1.5"/>
 	<xsl:variable name="p4" select="$y+$portion"/>
-	<polygon points=
-		"{$x+$width*0.5} {$p2},{$p3} {$p2},{$p1} {$y},{$x} {$y},
-		{$x} {$p4}, {$p1} {$p4},{$p1} {$y},{$p3} {$p2},
-		{$p3} {($p4)-($width*0.2)}, {$p1} {$p4},{$p1} {$y},{$x} {$y}
+	<polygon points="{$x+$width*0.5} {$p2},{$p3} {$p2},{$p1} {$y},{$x} {$y},{$x} {$p4},{$p1} {$p4},{$p1} {$y},{$p3} {$p2},{$p3} {$p4 -$width*0.2},{$p1} {$p4},{$p1} {$y},{$x} {$y}
 		" style="fill:{$couleur};stroke:black;
 		stroke-width:3px;
 		stroke-opacity:0.2;" /> 

@@ -65,7 +65,7 @@
 
 											<!-- <line x1="0" y1="0" x2="0" y2="250" style="stroke:green" /> -->
 											<!-- <line x1="0" y1="250" x2="450" y2="250" style="stroke:green;stroke-width:2" /> -->
-											<line x1="0" y1="50" x2="450" y2="50" style="stroke:red" />
+											<line x1="0" y1="50" x2="450" y2="50" style="stroke:red"></line>
 											<!-- <text x="15" y="15" fill="crimson" style="font-size: 20px;">Total:</text> -->
 											<text x="15" y="50" fill="crimson" style="font-size: 40px;">
 												<xsl:value-of select="$total" />
@@ -132,10 +132,10 @@
 		</xsl:call-template>
 	</xsl:if>
 
-	<xsl:variable name="portion" select="$node*200 div $total"/>
+	<xsl:variable name="portion" select="substring($node*200 div $total,0,8)"/>
 
 	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[($decalage - $position+1) mod $colorCount + 1]"/>
-	<xsl:variable name="width" select="300 div $decalage"/>
+	<xsl:variable name="width" select="substring(300 div $decalage,0,8)"/>
 	<xsl:variable name="x" select="substring(300-($position*300 div $decalage),0,8)"/>
 	<xsl:variable name="y" select="250-$portion"/>
 	<xsl:variable name="p1" select="$x+$width"/>
@@ -143,27 +143,20 @@
 	<xsl:variable name="p3" select="$x+$width*1.5"/>
 	<xsl:variable name="p4" select="$y+$portion"/>
 
-	<polygon points=
-		"{$x+$width*0.5} {$p2},{$p3} {$p2},{$p1} {$y},{$x} {$y},
-		{$x} {$p4}, {$p1} {$p4},{$p1} {$y},{$p3} {$p2},
-		{$p3} {($p4)-($width*0.2)}, {$p1} {$p4},{$p1} {$y},{$x} {$y}
-		" style="fill:{$couleur};stroke:black;
-		stroke-width:3px;
-		stroke-opacity:0.2;" /> 
 
-<!-- 		<rect width="{$width}" x="{$x}" y="{$y}" height="{$portion}"
-			style="fill:{$couleur};
-			stroke:black;
-		stroke-opacity:0.3;
-		stroke-width:3px;" /> 
-	-->
-</xsl:template>
-<!-- /TEMPLATE -->
+	<rect width="{$width}" x="{$x}" y="{$y}" height="{$portion}" style="fill:{$couleur};stroke:black;stroke-opacity:0.3;stroke-width:3px;"></rect>
+	<polygon points="{$x+$width*0.5} {$p2},{$p3} {$p2},{$p1} {$y},{$x} {$y},{$x} {$p4},{$p1} {$p4},{$p1} {$y},{$p3} {$p2},{$p3} {$p4 -$width*0.2},{$p1} {$p4},{$p1} {$y},{$x} {$y}" style="fill:{$couleur};stroke:black;stroke-width:3px;stroke-opacity:0.2;" ></polygon>
 
 
 
 
-<!-- CALL -->
+	</xsl:template>
+	<!-- /TEMPLATE -->
+
+
+
+
+	<!-- CALL -->
 <!-- <xsl:call-template name="bodyColTab">
 	<xsl:with-param name="node" select="./nombres/nombre[1]"/>
 	<xsl:with-param name="total" select="$total"/>
@@ -220,7 +213,7 @@
 	<xsl:variable name="width" select="substring(370 div $decalage,0,8)"/>
 	<xsl:variable name="x" select="substring(($position*370 div $decalage)-(370 div $decalage),0,8)"/>
 
-	<div style="position:absolute;transform:rotate({$decalage*4}deg);transform-origin: top left;left:{$x+$width*0.5}px">
+	<div style="position:absolute;transform:rotate({$decalage*4}deg);transform-origin: top left;left:{$x}px">
 		<div><div style="float:left;width: 18px;background-color: {$couleur};border-radius: 50%;height: 18px;"></div>
 		<xsl:value-of select="$node/@name"/>: 
 		<xsl:value-of select="$node"/>

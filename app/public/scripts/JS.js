@@ -187,11 +187,18 @@ function majDataExplorer(xsltreceiver,groupby,orderby)
 	getData("/xmlData",{"queryName":"UAI_NOM_GROUP","groupeEtab":groupby,"ordreEtab":orderby},xsltreceiver,function(xmlResponse,xsltreceiver)
 	{
 		writeXML(xsltreceiver,templateExplorer,xmlResponse.responseXML,true)
-	});
+		});
 }
 function initStatistic(divFrame)
 {
-	divFrame.append('<div class="container" style="position: absolute;top: 0px;"><h1>Statistiques de la base de données</h1><h3>Afficher les statistiques en forme de ...</h3><div class="btn-group" data-toggle="buttons"> <label class="btn btn-primary active"> <input type="radio" name="options" value="camembert" autocomplete="off" checked> Camembert</label> <label class="btn btn-primary"> <input type="radio" name="options" value="histogramme" autocomplete="off"> Histogramme </label> <input class="btn btn-primary dwnStatBtn" type="button" value= "Télécharger ces statistiques au format PDF"></input></div></div>');
+	divFrame.append('<div class="container" style="position: absolute;top: 0px;">'
+		+'<h1>Statistiques de la base de données</h1>'
+		+'<h3>Afficher les statistiques en forme de ...</h3>'
+		+'<div class="btn-group" data-toggle="buttons">'
+		+'<label class="btn btn-primary active">'
+		+'<input type="radio" name="options" value="camembert" autocomplete="off" checked><span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span>&nbsp;Camembert</label>'
+		+'<label class="btn btn-primary"><input type="radio" name="options" value="histogramme" autocomplete="off"><span class="glyphicon glyphicon-stats" aria-hidden="true"></span>&nbsp;Histogramme </label>'
+		+'<button class="btn btn-primary dwnStatBtn" ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>&nbsp;Télécharger ces statistiques au format PDF</button></div></div>');
 	var xsltreceiver = document.createElement("div");
 	xsltreceiver.className ="xsltReceiver";
 	xsltreceiver.id="xsltReceiver"+idDivContent
@@ -224,7 +231,7 @@ function majStatistiques(xsltreceiver,statType)
 	var stepForStat= function(){
 
 		meterObject.step();
-		asyncRunning--;	
+		asyncRunning--;
 		if(asyncRunning==0)
 		{
 			console.log("Masonry")
@@ -238,7 +245,12 @@ function majStatistiques(xsltreceiver,statType)
 		getData("/xmlData",{"queryName":"STATISTIQUE","statType":statType,"groupEtab":k},k,function(xmlData,retourK)
 		{
 
-			writeXMLAsync(xsltreceiver,templateStat,xmlData.responseXML,false,undefined,stepForStat);
+			writeXMLAsync(xsltreceiver,templateStat,xmlData.responseXML,false,"resultDocument",
+				function(resultDocument){
+					resultDocument.innerHTML+='<button class="btn btn-primary inDwButton" onclick="location.href=\'/pdfStat?'+retourK+'='+statType+'\'"><span class="glyphicon glyphicon-download-alt" aria-hidden="true">&nbsp;PDF</span></button>';
+			
+					stepForStat();
+				});
 			// writeXML(xsltreceiver,templateStat,xmlData.responseXML);
 			 //stepForStat();
 			});
@@ -255,7 +267,7 @@ function viewEtab(sender)
 	if (/\S/.test(xsltreceiver.innerHTML)) {
 		return;
 	}
-	getData("/xmlData",{"queryName":"UN_ETABLISSEMENT","UAI":sender.id},undefined,function(xmlData)
+	getData("/xmlData",{"queryName":"UN_ETABLISSEMENT","UAI":sender.title},undefined,function(xmlData)
 	{
 		writeXML(xsltreceiver,templateEtab,xmlData.responseXML);
 	});
@@ -322,20 +334,27 @@ function getData(URL,args,callBackArg,callback)
 function writeXML(dataDiv,xslDoc,xmlDoc,replace)
 {
 	if(replace) dataDiv.innerHTML="";
+	var tmp = document.createElement('div');
+	var child =undefined;
+	var result =undefined;
 	if ("ActiveXObject" in window || window.ActiveXObject)
 	{
 		xslDoc.setProperty("AllowDocumentFunction", true);
 		ex = xmlDoc.transformNode(xslDoc);
-		dataDiv.innerHTML+=ex;
+		tmp.innerHTML +=ex;
+		
 	}
 	else if (document.implementation && document.implementation.createDocument)
 	{
 		xsltProcessor = new XSLTProcessor();
 		xsltProcessor.importStylesheet(xslDoc);
 		resultDocument = xsltProcessor.transformToFragment(xmlDoc, document);
-
-		dataDiv.appendChild(resultDocument);
+		tmp.appendChild(resultDocument);
 	}
+
+	firstchild=tmp.firstElementChild;
+	$(dataDiv).append( $(tmp).children());
+	return firstchild;
 
 }
 function createPointOnMap(map,latitude,longitude,name)
@@ -361,9 +380,11 @@ function createPointOnMap(map,latitude,longitude,name)
  		if(!ecritureEncours){
  			ecritureEncours=true;
  			clearInterval(interval);
- 			writeXML(dataDiv,xslDoc,xmlDoc,replace);
+ 			
+ 			var resultDocument = writeXML(dataDiv,xslDoc,xmlDoc,replace);
  			ecritureEncours=false;
- 			callback(callBackArg);
+ 			if (callBackArg = "resultDocument") callback(resultDocument);
+ 			else callback(callBackArg);
 
  		}
  		else{

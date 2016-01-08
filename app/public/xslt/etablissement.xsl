@@ -37,7 +37,7 @@
 						<td><xsl:value-of select="departement"/></td>
 						<td><xsl:value-of select="academie"/></td>
 						<td><xsl:value-of select="region"/></td>
-						<td><a href="{//www.onisep.fr/http/redirection/etablissement/identifiant/143}">+infos</a></td>
+						<td><a href="{./lien}" target="blank">+infos</a></td>
 					</tr>
 				</table>
 
