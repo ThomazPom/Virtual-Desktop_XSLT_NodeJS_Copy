@@ -5,6 +5,13 @@ var basex = require('basex');
 var fs = require('fs');
 var ostype = require('os').type();
 var fs = require('fs');
+fs.access('tmp', fs.F_OK, function (err) {
+	if(err)
+	{
+		console.log("Création du dossier temporaire..")
+		fs.mkdir('tmp');
+	}
+});
 var http = require('http');
 var https = require('https');
 var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
@@ -46,7 +53,8 @@ app.get("/pdfStat", function(req, res) {
 			fs.appendFileSync(fd, '</root>');
 			var command="fop";
 			if (ostype=="Windows_NT") {command+=".cmd"};
-			child = exec('fop-2.0\\'+command+' -xml tmp\\xmlStat'+id+'.xml -xsl public\\xslt\\statTemplateFo.xsl -pdf '+pdfPath,
+			var execString='fop-2.0\\'+command+' -xml tmp\\xmlStat'+id+'.xml -xsl public\\xslt\\statTemplateFo.xsl -pdf '+pdfPath;
+			child = exec(execString,
 				function (error, stdout, stderr) {
 					console.log('stdout: ' + stdout);
 					console.log('stderr: ' + stderr);
