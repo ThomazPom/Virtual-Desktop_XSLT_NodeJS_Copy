@@ -21,8 +21,9 @@ var exec = require('child_process').exec,child;
 var portscanner = require('portscanner');
 var execSync = require('child_process').execSync,childSync;
 var httpsServer = https.createServer(credentials, app);
+var path = require('path')
 try{	
-	execSync("BaseXServer stop");
+	execSync("basexserver stop");
 	console.log("Une instance concurente de BaseXServer a été stoppée");
 }
 catch(e){
@@ -30,7 +31,7 @@ catch(e){
 }
 finally{
 	console.log("Lancement de baseXServer");
-	execSync("BaseXServer -S");
+	execSync("basexserver -S");
 }
 var basex = require('basex');
 var session = new basex.Session();
