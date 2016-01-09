@@ -40,10 +40,11 @@ session.execute('open etablissement_superieur');
 app.get('/', function(req, res) {
 	res.render("index.ejs");
 });
+var xfoPath = 'public'+path.sep+'xslt'+path.sep+'statTemplateFo.xsl';
 app.get("/pdfStat", function(req, res) {
 	var id =new Date().valueOf();
-	var xmlPath = 'tmp\\xmlStat'+id+".xml";
-	var pdfPath ='tmp\\pdfStat'+id+'.pdf';
+	var xmlPath = 'tmp'+path.sep+'xmlStat'+id+".xml";
+	var pdfPath ='tmp'+path.sep+'pdfStat'+id+'.pdf';
 	fs.open(xmlPath, 'a', function(err, fd){
 		res.setHeader('Content-type', 'application/pdf');
 		res.setHeader('Content-disposition', 'inline; filename="Statistiques sur la base de données des établissement superieurs"');
@@ -54,7 +55,7 @@ app.get("/pdfStat", function(req, res) {
 			fs.appendFileSync(xmlPath, '</root>');
 			var command="fop";
 			if (ostype=="Windows_NT") {command+=".cmd"};
-			var execString='fop-2.0\\'+command+' -xml tmp\\xmlStat'+id+'.xml -xsl public\\xslt\\statTemplateFo.xsl -pdf '+pdfPath;
+			var execString='fop-2.0'+path.sep+command+' -xml '+xmlPath+' -xsl '+xfoPath+' -pdf '+pdfPath;
 			child = exec(execString,
 				function (error, stdout, stderr) {
 					console.log('stdout: ' + stdout);
@@ -171,8 +172,8 @@ function checkPortAndLaunch(checkPort,adresse,typeServeur,serveur, callback)
 }
 
 
-var phttp=80;
-var phttps=443;
+var phttp=8000;
+var phttps=8001;
 var adresse='127.0.0.1';
 console.log("TENTATIVE DE LANCEMENT DU SERVEUR HTTP/HTTPS");
 checkPortAndLaunch(phttp, adresse,"HTTP",httpServer,function(){
