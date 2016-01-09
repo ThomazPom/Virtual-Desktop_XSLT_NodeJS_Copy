@@ -1,7 +1,6 @@
 var express = require('express');
 var app = express();
 app.use(express.static('public'));
-var basex = require('basex');
 var fs = require('fs');
 var ostype = require('os').type();
 var fs = require('fs');
@@ -33,6 +32,7 @@ finally{
 	console.log("Lancement de baseXServer");
 	execSync("BaseXServer -S");
 }
+var basex = require('basex');
 var session = new basex.Session();
 session.execute('open etablissement_superieur');
 
@@ -42,15 +42,16 @@ app.get('/', function(req, res) {
 });
 app.get("/pdfStat", function(req, res) {
 	var id =new Date().valueOf();
-	fs.open('tmp/xmlStat'+id+".xml", 'a', function(err, fd){
-		res.setHeader('Content-disposition', 'inline; filename="Statistiques sur la base de données des établissement superieurs"');
+	var xmlPath = 'tmp\\xmlStat'+id+".xml";
+	var pdfPath ='tmp\\pdfStat'+id+'.pdf';
+	fs.open(xmlPath, 'a', function(err, fd){
 		res.setHeader('Content-type', 'application/pdf');
-		fs.appendFileSync(fd, '<?xml version="1.0" encoding="UTF-8"?><root>');
+		res.setHeader('Content-disposition', 'inline; filename="Statistiques sur la base de données des établissement superieurs"');
+		fs.appendFileSync(xmlPath, '<?xml version="1.0" encoding="UTF-8"?><root>');
 		var querycount=0;
 		queryIndice=0;
 		var exportPDF = function(){
-			var pdfPath ='tmp\\pdfStat'+id+'.pdf';
-			fs.appendFileSync(fd, '</root>');
+			fs.appendFileSync(xmlPath, '</root>');
 			var command="fop";
 			if (ostype=="Windows_NT") {command+=".cmd"};
 			var execString='fop-2.0\\'+command+' -xml tmp\\xmlStat'+id+'.xml -xsl public\\xslt\\statTemplateFo.xsl -pdf '+pdfPath;
@@ -64,7 +65,7 @@ app.get("/pdfStat", function(req, res) {
 				});
 			child.on('close', function (code) {
 				console.log('Fin de la generation du PDF :' + code);
-				res.download('tmp\\pdfStat'+id+'.pdf');
+				res.download(pdfPath);
 			});
 		}
 		for (var k in req.query){
@@ -79,7 +80,7 @@ app.get("/pdfStat", function(req, res) {
 				var writeInFile = function(indice,chaine){
 					var EOF= indice>=arrayLength
 					if (!EOF) {
-						fs.appendFile(fd, result.result[indice], 'utf8', function(){
+						fs.appendFile(xmlPath, result.result[indice], 'utf8', function(){
 							indice++;
 							writeInFile(indice);
 						});
