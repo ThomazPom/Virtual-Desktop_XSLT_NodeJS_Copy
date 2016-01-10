@@ -150,13 +150,13 @@
 
 
 
-	</xsl:template>
-	<!-- /TEMPLATE -->
+</xsl:template>
+<!-- /TEMPLATE -->
 
 
 
 
-	<!-- CALL -->
+<!-- CALL -->
 <!-- <xsl:call-template name="bodyColTab">
 	<xsl:with-param name="node" select="./nombres/nombre[1]"/>
 	<xsl:with-param name="total" select="$total"/>
@@ -301,97 +301,80 @@
 
 
 <colors:colors>
-
-	<color>wheat</color>
-	<color>royalblue</color>
-	<color>lime</color>
-	<color>red</color>
-	<color>aquamarine</color>
-	<color>bisque</color>
-	<color>blue</color>
-	<color>brown</color>
-	<color>burlywood</color>
-	<color>cadetblue</color>
-	<color>chartreuse</color>
-	<color>chocolate</color>
-	<color>coral</color>
-	<color>cornflowerblue</color>
-	<color>crimson</color>
-	<color>cyan</color>
-	<color>darkcyan</color>
-	<color>black</color>
-	<color>darkgoldenrod</color>
-	<color>darkgray</color>
-	<color>darkgreen</color>
-	<color>darkkhaki</color>
-	<color>darkolivegreen</color>
-	<color>darkorchid</color>
-	<color>darkred</color>
-	<color>darksalmon</color>
-	<color>darkseagreen</color>
-	<color>darkslategray</color>
-	<color>deeppink</color>
-	<color>deepskyblue</color>
-	<color>dimgray</color>
-	<color>dodgerblue</color>
-	<color>firebrick</color>
-	<color>forestgreen</color>
-	<color>fuchsia</color>
-	<color>gold</color>
-	<color>goldenrod</color>
-	<color>green</color>
-	<color>greenyellow</color>
-	<color>hotpink</color>
-	<color>indianred</color>
-	<color>indigo</color>
-	<color>lightblue</color>
-	<color>lightcoral</color>
-	<color>lightgreen</color>
-	<color>lightgrey</color>
-	<color>lightpink</color>
-	<color>lightsalmon</color>
-	<color>lightseagreen</color>
-	<color>lightskyblue</color>
-	<color>lightsteelblue</color>
-	<color>lime</color>
-	<color>magenta</color>
-	<color>maroon</color>
-	<color>mediumseagreen</color>
-	<color>mediumslateblue</color>
-	<color>mediumspringgreen</color>
-	<color>midnightblue</color>
-	<color>navy</color>
 	<color>olive</color>
-	<color>olivedrab</color>
-	<color>orange</color>
-	<color>orangered</color>
-	<color>paleturquoise</color>
-	<color>palevioletred</color>
-	<color>papayawhip</color>
-	<color>peachpuff</color>
-	<color>peru</color>
-	<color>pink</color>
-	<color>plum</color>
-	<color>powderblue</color>
-	<color>rosybrown</color>
-	<color>saddlebrown</color>
-	<color>salmon</color>
-	<color>sandybrown</color>
-	<color>seagreen</color>
-	<color>sienna</color>
-	<color>silver</color>
-	<color>skyblue</color>
-	<color>slateblue</color>
-	<color>slategray</color>
-	<color>springgreen</color>
+	<color>royalblue</color>
+	<color>yellow</color>
+	<color>greenyellow</color>
+	<color>lightgreen</color>
+	<color>turquoise</color>
+	<color>gold</color>
 	<color>steelblue</color>
 	<color>tan</color>
-	<color>teal</color>
-	<color>thistle</color>
+	<color>green</color>
+	<color>aquamarine</color>
+	<color>fuchsia</color>
+	<color>darkred</color>
+	<color>hotpink</color>
 	<color>tomato</color>
-	<color>turquoise</color>
+	<color>dimgray</color>
+	<color>orange</color>
+	<color>darkslategray</color>
+	<color>indigo</color>
+	<color>lavender</color>
+	<color>darkgray</color>
+	<color>coral</color>
+	<color>springgreen</color>
+	<color>pink</color>
+	<color>antiquewhite</color>
+	<color>thistle</color>
+	<color>lightcyan</color>
+	<color>lightcoral</color>
+	<color>purple</color>
 	<color>violet</color>
-	<color>yellow</color>
+	<color>sandybrown</color>
+	<color>burlywood</color>
+	<color>palegreen</color>
+	<color>rosybrown</color>
+	<color>lightseagreen</color>
+	<color>deepskyblue</color>
+	<color>darkgreen</color>
+	<color>palegoldenrod</color>
+	<color>darkturquoise</color>
+	<color>blue</color>
+	<color>crimson</color>
+	<color>lemonchiffon</color>
+	<color>mediumseagreen</color>
+	<color>goldenrod</color>
+	<color>seagreen</color>
+	<color>cornflowerblue</color>
+	<color>chartreuse</color>
+	<color>saddlebrown</color>
+	<color>darkkhaki</color>
+	<color>aqua</color>
+	<color>chocolate</color>
+	<color>orangered</color>
+	<color>midnightblue</color>
+	<color>khaki</color>
+	<color>darkolivegreen</color>
+	<color>red</color>
 	<color>yellowgreen</color>
+	<color>deeppink</color>
+	<color>slateblue</color>
+	<color>peachpuff</color>
+	<color>darkorange</color>
+	<color>paleturquoise</color>
+	<color>mediumvioletred</color>
+	<color>darkslateblue</color>
+	<color>mistyrose</color>
+	<color>limegreen</color>
+	<color>indianred</color>
+	<color>palevioletred</color>
+	<color>orchid</color>
+	<color>sienna</color>
+	<color>skyblue</color>
+	<color>lime</color>
+	<color>dodgerblue</color>
+	<color>peru</color>
+	<color>plum</color>
 </colors:colors>
 </xsl:stylesheet>
