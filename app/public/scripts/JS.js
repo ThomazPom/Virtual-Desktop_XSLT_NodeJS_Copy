@@ -360,7 +360,6 @@ function writeXML(dataDiv,xslDoc,xmlDoc,replace)
 function createPointOnMap(map,latitude,longitude,UAI)
 {	
 	var xsltReceiver = document.createElement("div");
-	xsltReceiver.innerHTML="OKEY";
 	var infowindow = new google.maps.InfoWindow({
 		content:xsltReceiver
 	});
