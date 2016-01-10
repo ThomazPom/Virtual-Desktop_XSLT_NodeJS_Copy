@@ -117,7 +117,7 @@ function initMap(divFrame) {
 		center: {lat: 48.8534100, lng: 2.3488000},
 		zoom: 6
 	});
-	getData("/xmlData",{"queryName":"NOM_LAT_LON"},map,placeAllPointsOn);
+	getData("/xmlData",{"queryName":"UAI_LAT_LON"},map,placeAllPointsOn);
 }
 
 var groupes = {
@@ -187,7 +187,7 @@ function majDataExplorer(xsltreceiver,groupby,orderby)
 	getData("/xmlData",{"queryName":"UAI_NOM_GROUP","groupeEtab":groupby,"ordreEtab":orderby},xsltreceiver,function(xmlResponse,xsltreceiver)
 	{
 		writeXML(xsltreceiver,templateExplorer,xmlResponse.responseXML,true)
-		});
+	});
 }
 function initStatistic(divFrame)
 {
@@ -248,7 +248,7 @@ function majStatistiques(xsltreceiver,statType)
 			writeXMLAsync(xsltreceiver,templateStat,xmlData.responseXML,false,"resultDocument",
 				function(resultDocument){
 					resultDocument.innerHTML+='<button class="btn btn-primary inDwButton" onclick="location.href=\'/pdfStat?'+retourK+'='+statType+'\'"><span class="glyphicon glyphicon-download-alt" aria-hidden="true">&nbsp;PDF</span></button>';
-			
+
 					stepForStat();
 				});
 			// writeXML(xsltreceiver,templateStat,xmlData.responseXML);
@@ -291,10 +291,10 @@ function placeAllPointsOn(data,map)
 	var etablissementlenght = etablissements.childElementCount*2;
 	for (var i = 1; i < etablissementlenght; i+=2) {
 		var etablissement = etablissements.childNodes[i];
-		var nom = etablissement.childNodes[1].firstChild.nodeValue;
+		var UAI = etablissement.childNodes[1].firstChild.nodeValue;
 		var latitude = etablissement.childNodes[3].firstChild.nodeValue;
 		var longitude = etablissement.childNodes[5].firstChild.nodeValue;
-		createPointOnMap(map,latitude,longitude,nom)
+		createPointOnMap(map,latitude,longitude,UAI)
 	}
 }
 
@@ -357,19 +357,25 @@ function writeXML(dataDiv,xslDoc,xmlDoc,replace)
 	return firstchild;
 
 }
-function createPointOnMap(map,latitude,longitude,name)
-{
-	var contentString = '<h2>'+name+'</h2>';
+function createPointOnMap(map,latitude,longitude,UAI)
+{	
+	var xsltReceiver = document.createElement("div");
+	xsltReceiver.innerHTML="OKEY";
 	var infowindow = new google.maps.InfoWindow({
-		content: contentString
+		content:xsltReceiver
 	});
 	var marker = new google.maps.Marker({
 		position: {lat: parseFloat(latitude), lng: parseFloat(longitude)},
-		map: map,
-		title: name
+		map: map
 	});
 	marker.addListener('click', function() {
+		getData("/xmlData",{"queryName":"UN_ETABLISSEMENT","UAI":UAI},undefined,function(xmlData)
+		{
+			writeXML(xsltReceiver,templateEtab,xmlData.responseXML,true);
+		});
+		console.log(infowindow);
 		infowindow.open(map, marker);
+
 	});
 }
  //FONCTION ECTITURE XML DOC ASYNC
