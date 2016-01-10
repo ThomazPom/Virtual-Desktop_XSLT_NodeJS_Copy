@@ -36,8 +36,6 @@ finally{
 var basex = require('basex');
 var session = new basex.Session();
 session.execute('open etablissement_superieur');
-
-
 app.get('/', function(req, res) {
 	res.render("index.ejs");
 });
@@ -49,53 +47,58 @@ app.get("/pdfStat", function(req, res) {
 	fs.open(xmlPath, 'a', function(err, fd){
 		res.setHeader('Content-type', 'application/pdf');
 		res.setHeader('Content-disposition', 'inline; filename="Statistiques sur la base de données des établissement superieurs"');
-		fs.appendFileSync(xmlPath, '<?xml version="1.0" encoding="UTF-8"?><root>');
-		var querycount=0;
-		queryIndice=0;
-		var exportPDF = function(){
-			fs.appendFileSync(xmlPath, '</root>');
-			var command="fop";
-			if (ostype=="Windows_NT") {command+=".cmd"};
-			var execString='fop-2.0'+path.sep+command+' -xml '+xmlPath+' -xsl '+xfoPath+' -pdf '+pdfPath;
-			child = exec(execString,
-				function (error, stdout, stderr) {
-					console.log('stdout: ' + stdout);
-					console.log('stderr: ' + stderr);
-					if (error !== null) {
-						console.log('exec error: ' + error);
-					}
+		fs.appendFile(fd, '<?xml version="1.0" encoding="UTF-8"?><root>','utf8',function(){
+			var querycount=0;
+			queryIndice=0;
+			var exportPDF = function(){
+				var command="fop";
+				if (ostype=="Windows_NT") {command+=".cmd"};
+				var execString='fop-2.0'+path.sep+command+' -xml '+xmlPath+' -xsl '+xfoPath+' -pdf '+pdfPath;
+				var fopChild = exec(execString,
+					function (error, stdout, stderr) {
+						console.log(stderr);
+						if (error !== null) {
+							console.log('exec error: ' + error);
+						}
+					});
+				fopChild.on('close', function (code) {
+					console.log('Fin de la generation du PDF :' + code);
+					res.download(pdfPath);
+
+					
 				});
-			child.on('close', function (code) {
-				console.log('Fin de la generation du PDF :' + code);
-				res.download(pdfPath);
-			});
-		}
-		for (var k in req.query){
-			querycount++
-		}
-		for (var k in req.query){
-			console.log("For key " + k + ", value is " + req.query[k]);
-			stringQuery = xQueries['STATISTIQUE'].replace(new RegExp("#groupEtab",'g'),k).replace("#statType",req.query[k]);
-			var query = session.query(stringQuery);
-			query.results(function (err, result) {
-				var arrayLength = result.result.length;
-				var writeInFile = function(indice,chaine){
-					var EOF= indice>=arrayLength
-					if (!EOF) {
-						fs.appendFile(xmlPath, result.result[indice], 'utf8', function(){
-							indice++;
-							writeInFile(indice);
-						});
+			}
+			for (var k in req.query){
+				querycount++
+			}
+			for (var k in req.query){
+				console.log("For key " + k + ", value is " + req.query[k]);
+				stringQuery = xQueries['STATISTIQUE'].replace(new RegExp("#groupEtab",'g'),k).replace("#statType",req.query[k]);
+				var query = session.query(stringQuery);
+				query.results(function (err, result) {
+					var arrayLength = result.result.length;
+					var writeInFile = function(indice,chaine){
+						var EOF= indice>=arrayLength
+						if (!EOF) {
+							fs.appendFile(fd, result.result[indice], 'utf8', function(){
+								indice++;
+								writeInFile(indice);
+							});
+						}
+						else if (EOF && queryIndice==querycount) {
+							fs.appendFile(fd, '</root>','utf8',function(){
+								fs.close(fd,function(){
+									exportPDF();
+								});
+							});
+						};
 					}
-					else if (EOF && queryIndice==querycount) {
-						exportPDF();
-					};
-				}
-				queryIndice++;
-				writeInFile(0);
-			});
-		}
-	});
+					queryIndice++;
+					writeInFile(0);
+				});
+			}
+		});
+});
 });
 app.get('/xmlData', function(req, res) {
 	var qName=req.query.queryName;
@@ -113,12 +116,10 @@ app.get('/xmlData', function(req, res) {
 	var query = session.query(stringQuery);
 	var stringQuery = xQueries[qName];
 	query.results(function (err, result) {
-		
 		res.setHeader('content-type', 'application/xml');
 		res.write('<?xml version="1.0" encoding="UTF-8"?>');
 		res.write('<root>');
 		if (err) {
-
 			res.write('</root>');
 			res.end();
 			return;
@@ -145,11 +146,9 @@ app.get('/xmlData', function(req, res) {
 	//,"STAT_NBET_REGI":'let $ms:=/ONISEP_ETABLISSEMENT/etablissement return<stat> <type>#statType</type> <nom>Nombre d&apos;établissement par région</nom> <total>{count($ms)}</total> <nombres>{ for $etab in $ms let $region := $etab/region group by $region order by $region return <nombre name="{$region}">{count($etab)}</nombre>} </nombres> </stat>'
 	,"UAI_NOM_GROUP":'let $ms:=/ONISEP_ETABLISSEMENT/etablissement for $etab in $ms let $group := $etab/#groupeEtab group by $group order by $group return <etabGroup name="{$group}">{ for $partEtab in $etab order by $partEtab/#ordreEtab return<etablissement>{$partEtab/UAI,$partEtab/nom}</etablissement> } </etabGroup>'
 };
-
 function checkPortAndLaunch(checkPort,adresse,typeServeur,serveur, callback)
 {
 	portscanner.checkPortStatus(checkPort, adresse, function(error, status) {
-
 		if (status==='open') {
 			portscanner.findAPortNotInUse(8000, 9000, adresse, function(error, port) {
 				
@@ -159,7 +158,6 @@ function checkPortAndLaunch(checkPort,adresse,typeServeur,serveur, callback)
 				console.log("Serveur "+typeServeur+" asigné au port " +checkPort);
 				if(callback) callback();
 			})
-
 		}
 		else
 		{
@@ -167,17 +165,13 @@ function checkPortAndLaunch(checkPort,adresse,typeServeur,serveur, callback)
 			console.log("Serveur "+typeServeur+" asigné au port " +checkPort);
 			if(callback) callback();
 		}
-
 	})
-
 }
-
-
 var phttp=8000;
 var phttps=8001;
 var adresse='127.0.0.1';
 console.log("TENTATIVE DE LANCEMENT DU SERVEUR HTTP/HTTPS");
-checkPortAndLaunch(phttp, adresse,"HTTP",httpServer,function(){
-	checkPortAndLaunch(phttps, adresse,"HTTPS",httpsServer);
+checkPortAndLaunch(phttp, adresse,"HTTP "+adresse,httpServer,function(){
+	checkPortAndLaunch(phttps, adresse,"HTTPS "+adresse,httpsServer);
 });
 

@@ -1,9 +1,7 @@
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:colors="colors:colors" xmlns:fo="http://www.w3.org/1999/XSL/Format">
 	<xsl:output encoding="UTF-8" indent="yes" method="xml" standalone="no" omit-xml-declaration="no"/>
-	
 	<xsl:variable name="colors" select="document('')/*/colors:colors/color"/>
 	<xsl:variable name="colorCount" select="count($colors)"/>
-	
 	<xsl:template match="/">
 		<fo:root language="FR">
 			<fo:layout-master-set>

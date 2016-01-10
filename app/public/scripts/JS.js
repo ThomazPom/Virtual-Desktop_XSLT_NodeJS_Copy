@@ -1,3 +1,4 @@
+//Au cas ou la console n'est pas définie
 var alertFallback = false;
 if (typeof console === "undefined" || typeof console.log === "undefined") {
 	console = {};
@@ -9,14 +10,7 @@ if (typeof console === "undefined" || typeof console.log === "undefined") {
 		console.log = function() {};
 	}
 }
-
-// console.log("document.URL : "+document.URL);
-// console.log("document.location.href : "+document.location.href);
-// console.log("document.location.origin : "+document.location.origin);
-// console.log("document.location.hostname : "+document.location.hostname);
-// console.log("document.location.host : "+document.location.host);
-// console.log("document.location.pathname : "+document.location.pathname);
-
+//Initialisation des variables
 var idDivContent = 0;
 var topDivContent =null;
 var templateExplorer = null;
@@ -47,12 +41,13 @@ var meterObject =
 	}
 }
 
-
+var groupes = {	"type":"Type"	,"statut":"Statut"	,"tutelle":"Tutelle"	,"region":"Région"	,"universite":"Université"	,"academie":"Académie"	,"commune":"Commune"	,"nom":"Nom"	,"sigle":"Sigle"	,"cp":"Code Postal"}
+var ordres = {	"UAI":"UAI",	"type":"Type",	"nom":"Nom",	"sigle":"Sigle",	"statut":"Statut",	"tutelle":"Tutelle",	"universite":"Université",	"cp":"Code Postal",	"commune":"Commune",	"departement":"Département",	"academie":"Académie",	"region":"Région",	"longitude_X":"Longitude",	"latitude_Y":"Latittude"}
 getData("/xslt/explorer.xsl",{},undefined,function(xslResponse){
 	templateExplorer=xslResponse.responseXML;
 	console.log("Template explo chargée");
 });
-getData("/xslt/statTemplate2.xsl",{},undefined,function(xslResponse){
+getData("/xslt/statTemplateXsl.xsl",{},undefined,function(xslResponse){
 	templateStat=xslResponse.responseXML;
 	console.log("Template stat chargée");
 });
@@ -61,34 +56,32 @@ getData("/xslt/etablissement.xsl",{},undefined,function(xslResponse){
 	templateEtab=xslResponse.responseXML;
 	console.log("Template etablissement chargée");
 });
+//-/Initialisation terminée
+
+//Pour ramener une fenêtre au premierPlan
+
 function divContentTopIndex(sender)
 {
 	topDivContent=sender;
 	$( ".divContent" ).css("z-index",500);
-	sender.parent().css("z-index",600);	
+	
+	sender.style.zIndex=600;
 }
-
+//Pour enlever une fenêtre quand on appuie sur la touche échap
 $(document).on('keyup',function(evt) {
 	if (evt.keyCode == 27) {
 		topDivContent.remove();
 	}
 });
-$(".divFrame").mousedown(divContentTopIndex);
+//Pour Pour créeer des fenêtres les styliser et les initialiser
 $(".appicon").click(function()
 {
 	var decalage = 60+(idDivContent*10)%100;
 	var divContent = $( "#divContent" ).clone().appendTo( "#content" ).attr("id","divContent" +idDivContent).css("display","block").css("position","absolute")
 	.css("top",decalage+"px").css("left",decalage+"px").draggable({
 		handle:".divFrame>nav"
-	}).resizable().click(function()
-	{
-		$( ".divContent" ).css("z-index",500);
-		$(this).css("z-index",600);
-	});
-
-
-
-	divContentTopIndex(divContent);
+	}).resizable().mousedown(function(){divContentTopIndex(this)});
+	divContentTopIndex(divContent[0]);
 
 	var tailleAdapter = idDivContent%10;
 	if ($(this).attr("id")=="linkMap") 
@@ -108,6 +101,7 @@ $(".appicon").click(function()
 	}
 	idDivContent++;
 });
+//Pour initialiser les fenêtres de type MAP
 function initMap(divFrame) {
 	if(divFrame==undefined)divFrame=$('#content');
 	var map = document.createElement('div');
@@ -119,44 +113,13 @@ function initMap(divFrame) {
 	});
 	getData("/xmlData",{"queryName":"UAI_LAT_LON"},map,placeAllPointsOn);
 }
-
-var groupes = {
-	"type":"Type"
-	,"statut":"Statut"
-	,"tutelle":"Tutelle"
-	,"region":"Région"
-	,"universite":"Université"
-	,"academie":"Académie"
-	,"commune":"Commune"
-	,"nom":"Nom"
-	,"sigle":"Sigle"
-	,"cp":"Code Postal"
-}
-var ordres = {
-	"UAI":"UAI",
-	"type":"Type",
-	"nom":"Nom",
-	"sigle":"Sigle",
-	"statut":"Statut",
-	"tutelle":"Tutelle",
-	"universite":"Université",
-	"cp":"Code Postal",
-	"commune":"Commune",
-	"departement":"Département",
-	"academie":"Académie",
-	"region":"Région",
-	"longitude_X":"Longitude",
-	"latitude_Y":"Latittude"
-}
+//Intitialise les fenêtres explorateur
 function initDataExplorer(divFrame)
 {
 	divFrame.append("<div class='form-group' ><div class='container'><table><tr><td><label>Grouper les établissement par..</label><select class='selectDataClassement form-control'></select></td>"
 		+"<td><label>Ordonner les résultats par..</label><select class='selectDataOrder form-control'></select></td></tr></table></div></div>");
-
 	var selectDataClassement =  divFrame.find(".selectDataClassement");
 	var selectDataOrder =  divFrame.find(".selectDataOrder");
-
-	
 	for (var k in groupes){
 		selectDataClassement.append($('<option>', {
 			value: k,
@@ -181,7 +144,7 @@ function initDataExplorer(divFrame)
 	selectDataOrder.change(changeEvent);
 	changeEvent();
 }
-
+//Met^à jour les fenêtres explorateur
 function majDataExplorer(xsltreceiver,groupby,orderby)
 {
 	getData("/xmlData",{"queryName":"UAI_NOM_GROUP","groupeEtab":groupby,"ordreEtab":orderby},xsltreceiver,function(xmlResponse,xsltreceiver)
@@ -189,6 +152,7 @@ function majDataExplorer(xsltreceiver,groupby,orderby)
 		writeXML(xsltreceiver,templateExplorer,xmlResponse.responseXML,true)
 	});
 }
+//Initilaise les fenêtres Statistiques
 function initStatistic(divFrame)
 {
 	divFrame.append('<div class="container" style="position: absolute;top: 0px;">'
@@ -215,6 +179,7 @@ function initStatistic(divFrame)
 	changeDwURL(statType,dwLink)
 	majStatistiques(xsltreceiver,statType);
 }
+//Met à jour le lien de téléchargement de touts les PDF
 function changeDwURL(statType,dwLink)
 {
 	var url = "/pdfStat?"
@@ -223,13 +188,13 @@ function changeDwURL(statType,dwLink)
 	}
 	dwLink.attr("onclick",'location.href=\''+url+'\'');
 }
+//Met à jour une fenêtre de statistiques
 function majStatistiques(xsltreceiver,statType)
 {
 	xsltreceiver.innerHTML="";
 	var asyncRunning=0;
 	var total=0;
 	var stepForStat= function(){
-
 		meterObject.step();
 		asyncRunning--;
 		if(asyncRunning==0)
@@ -238,29 +203,22 @@ function majStatistiques(xsltreceiver,statType)
 			$(xsltreceiver).masonry('destroy').masonry();
 		}
 	}
-
 	for (var k in groupes){
 		asyncRunning++;
 		total++;
 		getData("/xmlData",{"queryName":"STATISTIQUE","statType":statType,"groupEtab":k},k,function(xmlData,retourK)
 		{
-
 			writeXMLAsync(xsltreceiver,templateStat,xmlData.responseXML,false,"resultDocument",
 				function(resultDocument){
 					resultDocument.innerHTML+='<button class="btn btn-primary inDwButton" onclick="location.href=\'/pdfStat?'+retourK+'='+statType+'\'"><span class="glyphicon glyphicon-download-alt" aria-hidden="true">&nbsp;PDF</span></button>';
-
 					stepForStat();
 				});
-			// writeXML(xsltreceiver,templateStat,xmlData.responseXML);
-			 //stepForStat();
-			});
+		});
 	}
-	console.log("WILL INIT");
 	meterObject.init(total);
 	meterObject.step();
 }
-
-
+//Affiche un établissement dans la fenêtre explorateur
 function viewEtab(sender)
 {
 	xsltreceiver=$(sender).children(".collapse").children(".panel-body")[0];
@@ -272,16 +230,15 @@ function viewEtab(sender)
 		writeXML(xsltreceiver,templateEtab,xmlData.responseXML);
 	});
 }
-
+//Corrige un bug de internet explorer :Le document retourné est un MSXML, on veut du XML
 function formatDataIE(data){
-	if(data.responseXML.firstElmentChild==undefined);
+	if(Object.prototype.toString.call(data)!="[object XMLHttpRequest]")
 	{
 		console.log("Données converties pour ie");
 		return {'responseXML':$.parseXML(data.responseText)};
 	}
 	return data;
 }
-
 ////////////////////////FONCTION DE PLACEMENTS DES POINTS DANS {DATA} SUR {MAP}
 function placeAllPointsOn(data,map)
 {
@@ -297,8 +254,7 @@ function placeAllPointsOn(data,map)
 		createPointOnMap(map,latitude,longitude,UAI)
 	}
 }
-
-///////////////////////Get data utilisant JAVASCRIPT
+/////Fonction asychrone full javascript pour télécharger des données xml
 function getData(URL,args,callBackArg,callback)
 {
 	var req=null;
@@ -329,8 +285,7 @@ function getData(URL,args,callBackArg,callback)
 	return;
 
 }
-
-//////////////FONCTION ECRITURE DE {XML DOC} parsé avec {XSLDOC} dans {DATA DIV}
+//Transformation compatible cross browser des données téléchargées et ajout/remplacemnt du contenu d'un xsltReceiver
 function writeXML(dataDiv,xslDoc,xmlDoc,replace)
 {
 	if(replace) dataDiv.innerHTML="";
@@ -342,7 +297,6 @@ function writeXML(dataDiv,xslDoc,xmlDoc,replace)
 		xslDoc.setProperty("AllowDocumentFunction", true);
 		ex = xmlDoc.transformNode(xslDoc);
 		tmp.innerHTML +=ex;
-		
 	}
 	else if (document.implementation && document.implementation.createDocument)
 	{
@@ -351,12 +305,12 @@ function writeXML(dataDiv,xslDoc,xmlDoc,replace)
 		resultDocument = xsltProcessor.transformToFragment(xmlDoc, document);
 		tmp.appendChild(resultDocument);
 	}
-
 	firstchild=tmp.firstElementChild;
 	$(dataDiv).append( $(tmp).children());
 	return firstchild;
 
 }
+//Crée un seul marker sur la map et l'initialise
 function createPointOnMap(map,latitude,longitude,UAI)
 {	
 	var xsltReceiver = document.createElement("div");
@@ -377,7 +331,7 @@ function createPointOnMap(map,latitude,longitude,UAI)
 
 	});
 }
- //FONCTION ECTITURE XML DOC ASYNC
+ // Pour faire des transformattions & écritures XSLT asynchrones
  var ecritureEncours=false;
  function writeXMLAsync(dataDiv,xslDoc,xmlDoc,replace,callBackArg,callback)
  {
@@ -397,6 +351,7 @@ function createPointOnMap(map,latitude,longitude,UAI)
  		}
  	},100);
  }
+
 
 /*
 ///////////////////FONCTION CONVERSION D'ANGLES[ABANDONNE CAUSE FONCTIONS UTILISANT ABBANDONNEES]
