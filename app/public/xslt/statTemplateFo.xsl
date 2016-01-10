@@ -1,9 +1,10 @@
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:colors="colors:colors" xmlns:fo="http://www.w3.org/1999/XSL/Format">
 	<xsl:output encoding="UTF-8" indent="yes" method="xml" standalone="no" omit-xml-declaration="no"/>
 	
-	<xsl:variable name="colorCount" select="count(document('')/*/colors:colors/color)"/>
+	<xsl:variable name="colors" select="document('')/*/colors:colors/color"/>
+	<xsl:variable name="colorCount" select="count($colors)"/>
 	
-	<xsl:template match="/" xmlns:fox="http://xmlgraphics.apache.org/fop/extensions">
+	<xsl:template match="/">
 		<fo:root language="FR">
 			<fo:layout-master-set>
 				<fo:simple-page-master master-name="A4-portrail" page-height="297mm" page-width="210mm" margin-top="5mm" margin-bottom="5mm" margin-left="5mm" margin-right="5mm">
@@ -14,26 +15,23 @@
 
 			<fo:page-sequence master-reference="A4-portrail">
 				<fo:static-content flow-name="xsl-region-before">
-						<fo:table  color="white" table-layout="fixed" width="100%" font-size="12pt" background-color="steelblue">
-							<fo:table-column column-width="proportional-column-width(80)"/>
-							<fo:table-column column-width="proportional-column-width(20)"/>
-							<fo:table-body>
-								<fo:table-row >
-									<fo:table-cell padding-top="3mm" text-align="center" display-align="center">
-										<fo:block font-size="25pt" font-weight="bold" >
-											Statistiques sur la base de données</fo:block>
-											<fo:block space-before="3mm"/>
-										</fo:table-cell>
-										<fo:table-cell text-align="right" display-align="center" padding-right="2mm">
-											<fo:block>
-												<xsl:value-of select="testata/data"/>
-											</fo:block>
-											<fo:block font-weight="bold" display-align="before" space-before="6mm">Page <fo:page-number/>
-										</fo:block>
+					<fo:table  color="white" table-layout="fixed" width="100%" font-size="12pt" background-color="steelblue">
+						<fo:table-column column-width="proportional-column-width(80)"/>
+						<fo:table-column column-width="proportional-column-width(20)"/>
+						<fo:table-body>
+							<fo:table-row >
+								<fo:table-cell padding-top="3mm" text-align="center" display-align="center">
+									<fo:block font-size="25pt" font-weight="bold" >
+										Statistiques sur la base de données</fo:block>
+										<fo:block space-before="3mm"/>
 									</fo:table-cell>
-								</fo:table-row>
-							</fo:table-body>
-						</fo:table>
+									<fo:table-cell text-align="right" display-align="center" padding-right="2mm">
+										<fo:block font-weight="bold" display-align="before" space-before="6mm">Page <fo:page-number/>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+						</fo:table-body>
+					</fo:table>
 				</fo:static-content>
 				<fo:flow flow-name="xsl-region-body" border-collapse="collapse" reference-orientation="0" >
 					<xsl:for-each select="root/stat">
@@ -96,7 +94,7 @@
 								</fo:table-row>
 								<xsl:call-template name="bodyTabCaller">
 									<xsl:with-param name="count" select="$count"/>
-									<xsl:with-param name="callPos" select="0"/>
+									<xsl:with-param name="callPos" select="1"/>
 									<xsl:with-param name="parent" select="./nombres"/>
 									<xsl:with-param name="total" select="$total"/>
 								</xsl:call-template>
@@ -109,11 +107,11 @@
 	</xsl:template>
 	<xsl:template name="bodyTabCaller">
 		<xsl:param name="count" select="0"/>
-		<xsl:param name="callPos" select="0"/>
+		<xsl:param name="callPos" select="1"/>
 		<xsl:param name="parent"/>
 		<xsl:param name="total" select="1"/>
 		<xsl:call-template name="bodyTab">
-			<xsl:with-param name="node" select="$parent/nombre[$callPos+1]"/>
+			<xsl:with-param name="node" select="$parent/nombre[$callPos]"/>
 			<xsl:with-param name="total" select="$total"/>
 			<xsl:with-param name="position" select="$callPos"/>
 			<xsl:with-param name="maxpos" select="$callPos+499"/>
@@ -192,7 +190,7 @@
 				<xsl:with-param name="maxpos" select="$maxpos"/>
 			</xsl:call-template>
 		</xsl:if>
-		<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position mod $colorCount + 1]"/>
+		<xsl:variable name="couleur" select="$colors[$position mod $colorCount + 1]"/>
 		<circle r="100" cx="280" cy="150"  fill-opacity="0" style='stroke:{$couleur};stroke-width: 50;
 			stroke-dasharray: 0,{$decalage},{$portion+3},940;'>
 		</circle>
@@ -213,7 +211,7 @@
 			</xsl:call-template>
 		</xsl:if>
 		<xsl:variable name="portion" select="$node*200 div $total"/>
-		<xsl:variable name="couleur" select="document('')/*/colors:colors/color[($decalage - $position+1) mod $colorCount + 1]"/>
+		<xsl:variable name="couleur" select="$colors[($decalage - $position+1) mod $colorCount + 1]"/>
 		<xsl:variable name="width" select="350 div $decalage"/>
 		<xsl:variable name="x" select="substring(350-($position*350 div $decalage),0,8)"/>
 		<xsl:variable name="y" select="250-$portion"/>
@@ -221,49 +219,47 @@
 		<xsl:variable name="p2" select="($y)-($width*0.2)"/>
 		<xsl:variable name="p3" select="$x+$width*1.5"/>
 		<xsl:variable name="p4" select="$y+$portion"/>
-		<polygon points="{$x+$width*0.5} {$p2},{$p3} {$p2},{$p1} {$y},{$x} {$y},{$x} {$p4},{$p1} {$p4},{$p1} {$y},{$p3} {$p2},{$p3} {$p4 -$width*0.2},{$p1} {$p4},{$p1} {$y},{$x} {$y}
-			" style="fill:{$couleur};stroke:black;
-			stroke-width:3px;
-			stroke-opacity:0.2;" /> 
-		</xsl:template>
-		<xsl:template name="bodyTab"  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"  xmlns:fox="http://xmlgraphics.apache.org/fop/extensions">
-			<xsl:param name="node"/>
-			<xsl:param name="total"/>
-			<xsl:param name="position"/>
-			<xsl:param name="maxpos"/>
-			<xsl:variable name="pourcentage" select="$node div $total*100"/>
-			<xsl:variable name="couleur" select="document('')/*/colors:colors/color[($position+ 1) mod $colorCount + 1]"/>
-			<fo:table-row border-bottom="0.2mm solid {$couleur}">
-				<fo:table-cell><fo:block margin="2mm" fox:border-radius="10" background-color="{$couleur}">&#160;</fo:block></fo:table-cell>
-				<fo:table-cell><fo:block><xsl:if test="$node/@name=''">(Aucun)</xsl:if><xsl:value-of select="$node/@name"/></fo:block></fo:table-cell>
-				<fo:table-cell><fo:block><xsl:value-of select="$node"/></fo:block></fo:table-cell>
-				<fo:table-cell><fo:block><xsl:value-of select="substring($pourcentage,0,5)"/>%</fo:block></fo:table-cell>
-			</fo:table-row>
-			<xsl:if test="$node/following-sibling::nombre and $position &lt; $maxpos">
-				<xsl:call-template name="bodyTab">
-					<xsl:with-param name="node" select="$node/following-sibling::nombre[1]"/>
-					<xsl:with-param name="total" select="$total"/>
-					<xsl:with-param name="position" select="$position +1"/>
-					<xsl:with-param name="maxpos" select="$maxpos"/>
-				</xsl:call-template>
-			</xsl:if>
-		</xsl:template>
-		<xsl:template match="nombre" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/2000/svg" >
-			<xsl:param name="decalage" select="0"/>
-			<xsl:param name="total" select="1"/>
-			<xsl:param name="position" select="1"/>
-			<xsl:variable name="nombre"  select="."/>
-			<xsl:variable name="portion" select="$nombre div $total *942"/>
-			<xsl:variable name="couleur" select="document('')/*/colors:colors[$position mod $colorCount + 1]"/>
-			<circle r="150" cx="150" cy="150"  fill-opacity="0" style='stroke:{$couleur};stroke-width: 200;
-				stroke-dasharray: 0,{$decalage},{$portion+3},942;'>
-			</circle>
-			<xsl:apply-templates select="following-sibling::nombre[1]"> 
-				<xsl:with-param name="decalage" select="$decalage + $portion"/>
+		<polygon points="{$x+$width*0.5} {$p2},{$p3} {$p2},{$p1} {$y},{$x} {$y},{$x} {$p4},{$p1} {$p4},{$p1} {$y},{$p3} {$p2},{$p3} {$p4 -$width*0.2},{$p1} {$p4},{$p1} {$y},{$x} {$y}" style="fill:{$couleur};stroke:black;stroke-width:3px;stroke-opacity:0.2;" /> 
+	</xsl:template>
+	<xsl:template name="bodyTab"  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"  xmlns:fox="http://xmlgraphics.apache.org/fop/extensions">
+		<xsl:param name="node"/>
+		<xsl:param name="total"/>
+		<xsl:param name="position"/>
+		<xsl:param name="maxpos"/>
+		<xsl:variable name="pourcentage" select="$node div $total*100"/>
+		<xsl:variable name="couleur" select="$colors[$position mod $colorCount + 1]"/>
+		<fo:table-row border-bottom="0.2mm solid {$couleur}">
+			<fo:table-cell><fo:block margin="2mm" fox:border-radius="10" background-color="{$couleur}">&#160;</fo:block></fo:table-cell>
+			<fo:table-cell><fo:block><xsl:if test="$node/@name=''">(Aucun)</xsl:if><xsl:value-of select="$node/@name"/></fo:block></fo:table-cell>
+			<fo:table-cell><fo:block><xsl:value-of select="$node"/></fo:block></fo:table-cell>
+			<fo:table-cell><fo:block><xsl:value-of select="substring($pourcentage,0,5)"/>%</fo:block></fo:table-cell>
+		</fo:table-row>
+		<xsl:if test="$node/following-sibling::nombre and $position &lt; $maxpos">
+			<xsl:call-template name="bodyTab">
+				<xsl:with-param name="node" select="$node/following-sibling::nombre[1]"/>
 				<xsl:with-param name="total" select="$total"/>
 				<xsl:with-param name="position" select="$position +1"/>
-			</xsl:apply-templates> 
-		</xsl:template><colors:colors>
+				<xsl:with-param name="maxpos" select="$maxpos"/>
+			</xsl:call-template>
+		</xsl:if>
+	</xsl:template>
+	<xsl:template match="nombre" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/2000/svg" >
+		<xsl:param name="decalage" select="0"/>
+		<xsl:param name="total" select="1"/>
+		<xsl:param name="position" select="1"/>
+		<xsl:variable name="nombre"  select="."/>
+		<xsl:variable name="portion" select="$nombre div $total *942"/>
+		<xsl:variable name="couleur" select="$colors[$position mod $colorCount + 1]"/>
+		<circle r="150" cx="150" cy="150"  fill-opacity="0" style='stroke:{$couleur};stroke-width: 200;
+			stroke-dasharray: 0,{$decalage},{$portion+3},942;'>
+		</circle>
+		<xsl:apply-templates select="following-sibling::nombre[1]"> 
+			<xsl:with-param name="decalage" select="$decalage + $portion"/>
+			<xsl:with-param name="total" select="$total"/>
+			<xsl:with-param name="position" select="$position +1"/>
+		</xsl:apply-templates> 
+	</xsl:template>
+	<colors:colors>
 		<color>olive</color>
 		<color>royalblue</color>
 		<color>yellow</color>

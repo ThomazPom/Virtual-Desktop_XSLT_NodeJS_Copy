@@ -1,5 +1,6 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:colors="colors:colors">
-	<xsl:variable name="colorCount" select="count(document('')/*/colors:colors/color)"/>
+	<xsl:variable name="colors" select="document('')/*/colors:colors/color"/>
+	<xsl:variable name="colorCount" select="count($colors)"/>
 	
 				<!-- Stroke dasharay : {0 à 0} -> pour partir sur une brodure décalable,
 				{0 à (942-taille} -> pour décaler  la portion
@@ -134,7 +135,7 @@
 
 	<xsl:variable name="portion" select="substring($node*200 div $total,0,8)"/>
 
-	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[($decalage - $position+1) mod $colorCount + 1]"/>
+	<xsl:variable name="couleur" select="$colors[($decalage - $position+1) mod $colorCount + 1]"/>
 	<xsl:variable name="width" select="substring(300 div $decalage,0,8)"/>
 	<xsl:variable name="x" select="substring(300-($position*300 div $decalage),0,8)"/>
 	<xsl:variable name="y" select="250-$portion"/>
@@ -170,7 +171,7 @@
 	<xsl:param name="position" select="1"/>
 
 	<xsl:variable name="pourcentage" select="$node div $total*100"/>
-	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position mod $colorCount + 1]"/>
+	<xsl:variable name="couleur" select="$colors[$position mod $colorCount + 1]"/>
 	<tr>
 		<td><div style="width: 18px;background-color: {$couleur};border-radius: 50%;height: 18px;"></div></td>
 		<td><xsl:if test="$node/@name=''">(Aucun)</xsl:if><xsl:value-of select="$node/@name"/></td>
@@ -208,7 +209,7 @@
 
 
 	<xsl:variable name="pourcentage" select="substring($node*100 div $total ,0,6)"/>
-	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position mod $colorCount + 1]"/>
+	<xsl:variable name="couleur" select="$colors[$position mod $colorCount + 1]"/>
 	
 	<xsl:variable name="width" select="substring(370 div $decalage,0,8)"/>
 	<xsl:variable name="x" select="substring(($position*370 div $decalage)-(370 div $decalage),0,8)"/>
@@ -258,7 +259,7 @@
 		</xsl:call-template>
 	</xsl:if>
 
-	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position mod $colorCount + 1]"/>
+	<xsl:variable name="couleur" select="$colors[$position mod $colorCount + 1]"/>
 
 	<circle r="150" cx="150" cy="150"  fill-opacity="0" style='stroke:{$couleur};stroke-width: 150;
 		stroke-dasharray: 0,{$decalage},{$portion+3},939;'>
@@ -283,7 +284,7 @@
 
 	<xsl:variable name="nombre"  select="."/>
 	<xsl:variable name="portion" select="$nombre div $total *942"/>
-	<xsl:variable name="couleur" select="document('')/*/colors:colors/color[$position mod $colorCount + 1]"/>
+	<xsl:variable name="couleur" select="$colors[$position mod $colorCount + 1]"/>
 
 	<circle r="150" cx="150" cy="150"  fill-opacity="0" style='stroke:{$couleur};stroke-width: 200;
 		stroke-dasharray: 0,{$decalage},{$portion+3},942;'>
